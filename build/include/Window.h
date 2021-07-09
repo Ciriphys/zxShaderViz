@@ -48,6 +48,7 @@ public:
 	void SetEventCallbackProcedure(const EventProcedure&);
 
 	void Update();
+	void Clear();
 	void Close();
 
 private:

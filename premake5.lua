@@ -19,8 +19,8 @@ project "ShaderPlayground"
   targetdir ( "bin/".. outputdir .. "/%{prj.name}" )
   objdir    ( "bin/intermediates/" .. outputdir .. "/%{prj.name}" )
 
-  files { "build/src/**.cpp", "build/include/**.h" }
-  includedirs { "build/src", "build/include", "%{ExternalDirectories.Glad}", "%{ExternalDirectories.GLFW}" }
+  files { "build/src/**.cpp", "build/include/**.h", "build/ThirdParty/glm/glm/**.hpp" }
+  includedirs { "build/src", "build/include",  "build/ThirdParty/glm", "%{ExternalDirectories.Glad}", "%{ExternalDirectories.GLFW}" }
   links { "Glad", "GLFW", "opengl32.lib" }
 
   pchheader "sppch.h"

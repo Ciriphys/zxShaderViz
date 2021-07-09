@@ -23,6 +23,12 @@ void Window::Update()
 	glfwSwapBuffers(m_Window);
 }
 
+void Window::Clear()
+{
+	glClearColor(0.12f, 0.12f, 0.12f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
+}
+
 void Window::Close()
 {
 	glfwTerminate();

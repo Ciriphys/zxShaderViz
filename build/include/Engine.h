@@ -1,10 +1,12 @@
 #pragma once
 
-#include <Window.h>
+#include <Events/Event.h>
+#include <Events/KeyEvents.h>
+#include <Events/MouseEvents.h>
+#include <Events/WindowEvents.h>
 
-class KeyPressed;
-class WindowClosed;
-class WindowResized;
+#include <Renderer.h>
+#include <Window.h>
 
 class Engine
 {
@@ -21,9 +23,14 @@ private:
 	bool OnKeyPressed(KeyPressed&);
 	bool OnWindowClosed(WindowClosed&);
 	bool OnWindowResized(WindowResized&);
+	bool OnMouseMoved(MouseMoved&);
 
 	std::shared_ptr<Window> m_Window;
+	std::shared_ptr<Renderer> m_Renderer;
 	static std::shared_ptr<Engine> s_Instance;
 
 	bool m_Minimized;
+	float lastFrameTime = 0.0f;
+
+	glm::vec2 mousePos = {};
 };
