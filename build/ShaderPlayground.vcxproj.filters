@@ -12,6 +12,9 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\Engine.h">
+      <Filter>include</Filter>
+    </ClInclude>
     <ClInclude Include="include\Events\Event.h">
       <Filter>include\Events</Filter>
     </ClInclude>
@@ -27,19 +30,28 @@
     <ClInclude Include="include\Window.h">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="include\WindowEventsDispatcher.h">
+      <Filter>include</Filter>
+    </ClInclude>
     <ClInclude Include="include\sppch.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="include\WindowEventsDispatcher.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Engine.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Window.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\WindowEventsDispatcher.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
     <ClCompile Include="src\main.cpp">
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="src\sppch.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="src\Window.cpp" />
-    <ClCompile Include="src\WindowEventsDispatcher.cpp" />
   </ItemGroup>
 </Project>

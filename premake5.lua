@@ -1,6 +1,6 @@
 workspace "ShaderPlayground"
   architecture "x64"
-  configurations { "Debug", "Release" }
+  configurations { "Debug", "Release", "Distribution" }
 
   outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
     
@@ -30,14 +30,20 @@ project "ShaderPlayground"
     cppdialect "C++17"
     staticruntime "On"
     systemversion "latest"
-  
+    system "windows"
+
     defines { "SP_WIN" }
 
   filter { "configurations:Debug" }
-    defines { "DEBUG" }
+    defines { "SP_DEBUG", "DEBUG" }
     symbols "On"
 
   filter { "configurations:Release" }
-    defines { "NDEBUG" }
+    defines { "SP_RELEASE", "NDEBUG" }
     optimize "On"
+    linkoptions { "/SUBSYSTEM:WINDOWS" }
 
+  filter { "configurations:Distribution" }
+    defines { "SP_DIST", "SP_HIDE_LOGS" }
+    optimize "On"
+    linkoptions { "/SUBSYSTEM:WINDOWS" }

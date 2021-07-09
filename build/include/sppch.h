@@ -12,3 +12,7 @@
 #include <algorithm>
 #include <functional>
 #include <unordered_map>
+
+#ifdef SP_WIN
+	#include <Windows.h>
+#endif

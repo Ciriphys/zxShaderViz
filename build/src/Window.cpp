@@ -26,11 +26,8 @@ void Window::Update()
 void Window::Close()
 {
 	glfwTerminate();
-
 	s_glfwInit = false;
 	m_IsActive = false;
-
-	delete this;
 }
 
 void Window::SetRefreshRate(RefreshRate rrate)

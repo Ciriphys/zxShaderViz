@@ -18,7 +18,6 @@ class Window
 public:
 	Window
 	(
-		const EventProcedure& proc = nullptr,
 		uint32_t width = 1280,
 		uint32_t height = 720,
 		std::string title = "Window",
@@ -29,9 +28,7 @@ public:
 		m_Data.m_Height			= height;
 		m_Data.m_Title			= title;
 		m_Data.m_RefreshRate	= rrate;
-		m_Data.m_Procedure		= proc;
 
-		Init();
 		Init();
 	}
 

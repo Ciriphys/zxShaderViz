@@ -11,4 +11,3 @@ bool OnWindowClosed(WindowClosed& e);
 bool OnKeyPressed(KeyPressed& e);
 void WindowEventProcedure(Event& e);
 
-static std::unique_ptr<Window> window = std::unique_ptr<Window>(new Window(BIND_FUNCTION(WindowEventProcedure)));
