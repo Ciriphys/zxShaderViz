@@ -7,9 +7,11 @@ workspace "ShaderPlayground"
   ExternalDirectories = {}
   ExternalDirectories["Glad"]  = "build/ThirdParty/Glad/include"
   ExternalDirectories["GLFW"]  = "build/ThirdParty/GLFW/include"
+  ExternalDirectories["ImGui"] = "build/ThirdParty/ImGui"
 
   include "build/ThirdParty/Glad"
   include "build/ThirdParty/GLFW"
+  include "build/ThirdParty/ImGui"
 
 project "ShaderPlayground"
   location "build"
@@ -20,8 +22,8 @@ project "ShaderPlayground"
   objdir    ( "bin/intermediates/" .. outputdir .. "/%{prj.name}" )
 
   files { "build/src/**.cpp", "build/include/**.h", "build/ThirdParty/glm/glm/**.hpp" }
-  includedirs { "build/src", "build/include",  "build/ThirdParty/glm", "%{ExternalDirectories.Glad}", "%{ExternalDirectories.GLFW}" }
-  links { "Glad", "GLFW", "opengl32.lib" }
+  includedirs { "build/src", "build/include",  "build/ThirdParty/glm", "%{ExternalDirectories.Glad}", "%{ExternalDirectories.GLFW}", "%{ExternalDirectories.ImGui}" }
+  links { "Glad", "GLFW", "ImGui", "opengl32.lib" }
 
   pchheader "sppch.h"
   pchsource "build/src/sppch.cpp"

@@ -80,7 +80,7 @@
       <PrecompiledHeaderFile>sppch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>SP_WIN;SP_DEBUG;DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;include;ThirdParty\glm;ThirdParty\Glad\include;ThirdParty\GLFW\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;include;ThirdParty\glm;ThirdParty\Glad\include;ThirdParty\GLFW\include;ThirdParty\ImGui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -98,7 +98,7 @@
       <PrecompiledHeaderFile>sppch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>SP_WIN;SP_RELEASE;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;include;ThirdParty\glm;ThirdParty\Glad\include;ThirdParty\GLFW\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;include;ThirdParty\glm;ThirdParty\Glad\include;ThirdParty\GLFW\include;ThirdParty\ImGui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -121,7 +121,7 @@
       <PrecompiledHeaderFile>sppch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>SP_WIN;SP_DIST;SP_HIDE_LOGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;include;ThirdParty\glm;ThirdParty\Glad\include;ThirdParty\GLFW\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;include;ThirdParty\glm;ThirdParty\Glad\include;ThirdParty\GLFW\include;ThirdParty\ImGui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -139,7 +139,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="include\Utils\TimeStep.h" />
     <ClInclude Include="ThirdParty\glm\glm\common.hpp" />
     <ClInclude Include="ThirdParty\glm\glm\detail\_features.hpp" />
     <ClInclude Include="ThirdParty\glm\glm\detail\_fixes.hpp" />
@@ -423,6 +422,7 @@
     <ClInclude Include="include\Events\WindowEvents.h" />
     <ClInclude Include="include\Renderer.h" />
     <ClInclude Include="include\Utils\Shader.h" />
+    <ClInclude Include="include\Utils\TimeStep.h" />
     <ClInclude Include="include\Window.h" />
     <ClInclude Include="include\WindowEventsDispatcher.h" />
     <ClInclude Include="include\sppch.h" />
@@ -445,10 +445,9 @@
     <ProjectReference Include="ThirdParty\GLFW\GLFW.vcxproj">
       <Project>{154B857C-0182-860D-AA6E-6C109684020F}</Project>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="assets\shader\noise.glsl" />
-    <None Include="assets\shader\noise2.glsl" />
+    <ProjectReference Include="ThirdParty\ImGui\ImGui.vcxproj">
+      <Project>{C0FF640D-2C14-8DBE-F595-301E616989EF}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

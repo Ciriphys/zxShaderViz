@@ -888,6 +888,9 @@
     <ClInclude Include="include\Utils\Shader.h">
       <Filter>include\Utils</Filter>
     </ClInclude>
+    <ClInclude Include="include\Utils\TimeStep.h">
+      <Filter>include\Utils</Filter>
+    </ClInclude>
     <ClInclude Include="include\Window.h">
       <Filter>include</Filter>
     </ClInclude>
@@ -897,7 +900,6 @@
     <ClInclude Include="include\sppch.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="include\Utils\TimeStep.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Engine.cpp">
@@ -921,9 +923,5 @@
     <ClCompile Include="src\sppch.cpp">
       <Filter>src</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="assets\shader\noise.glsl" />
-    <None Include="assets\shader\noise2.glsl" />
   </ItemGroup>
 </Project>
