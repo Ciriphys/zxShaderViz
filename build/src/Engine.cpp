@@ -7,30 +7,32 @@ std::shared_ptr<Engine> Engine::s_Instance = nullptr;
 
 Engine::Engine()
 {
-	m_Window = std::make_shared<Window>();
-	m_Window->SetEventCallbackProcedure(BIND_FUNCTION(&Engine::OnEvent, this));
+	mWindow = std::make_shared<Window>();
+	mWindow->SetEventCallbackProcedure(BIND_FUNCTION(&Engine::OnEvent, this));
 
-	m_Renderer = Renderer::GetRenderer();
+	mRenderer = Renderer::GetRenderer();
 
-	m_Minimized = (m_Window->GetWidth() == 0 && m_Window->GetHeight() == 0);
+	mMinimized = (mWindow->GetWidth() == 0 && mWindow->GetHeight() == 0);
 }
 
 void Engine::RenderLoop()
 {
 	TimeStep ts;
 
-	while (m_Window->IsActive())
+	while (mWindow->IsActive())
 	{
-		m_Window->Update();
-		if (m_Minimized) continue;
+		mWindow->Update();
+		if (mMinimized) continue;
 
 		ts.Update();
 
-		m_Window->Clear();
-		m_Renderer->GetShader()->SetUniform1f("u_Time", ts.GetExecutionTimef());
-		m_Renderer->GetShader()->SetUniformVec2("u_MousePos", mousePos);
-		m_Renderer->GetShader()->SetUniformVec2("u_Resolution", { m_Window->GetWidth(), m_Window->GetHeight() });
-		m_Renderer->Draw();
+		mWindow->Clear();
+		if (!mRenderer->GetShader()) continue;
+
+		mRenderer->GetShader()->SetUniform("u_Time", ts.GetExecutionTimef());	
+		mRenderer->GetShader()->SetUniform("u_MousePos", mousePos);
+		mRenderer->GetShader()->SetUniform("u_Resolution", { mWindow->GetWidth(), mWindow->GetHeight() });
+		mRenderer->Draw();
 	}
 }
 
@@ -45,25 +47,37 @@ void Engine::OnEvent(Event& e)
 	EventDispatcher dispatcher(e);
 	dispatcher.Emit<WindowResized>(BIND_FUNCTION(&Engine::OnWindowResized, this));
 	dispatcher.Emit<WindowClosed>(BIND_FUNCTION(&Engine::OnWindowClosed, this));
+	dispatcher.Emit<FilesDropped>(BIND_FUNCTION(&Engine::OnFilesDropped, this));
 	dispatcher.Emit<KeyPressed>(BIND_FUNCTION(&Engine::OnKeyPressed, this));
 	dispatcher.Emit<MouseMoved>(BIND_FUNCTION(&Engine::OnMouseMoved, this));
 }
 
 bool Engine::OnKeyPressed(KeyPressed& e)
 {
-	m_Window->SetTitle(std::to_string(e.GetKeyCode()));
+	if (e.GetKeyCode() == 65)
+		mRenderer->DeleteShaderCache();
+
 	return true;
 }
 
 bool Engine::OnWindowClosed(WindowClosed& e)
 {
-	m_Window->Close();
+	mRenderer->DeleteShaderCache();
+	mWindow->Close();
+	return true;
+}
+
+bool Engine::OnFilesDropped(FilesDropped& e)
+{
+	for (auto& files : e.GetFiles())
+		mRenderer->LoadShaderFromGLSLPath(files);
+
 	return true;
 }
 
 bool Engine::OnWindowResized(WindowResized& e)
 {
-	m_Minimized = (e.GetWidth() == 0 && e.GetHeigth() == 0);
+	mMinimized = (e.GetWidth() == 0 && e.GetHeigth() == 0);
 	return true;
 }
 

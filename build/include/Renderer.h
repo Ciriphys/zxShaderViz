@@ -11,8 +11,13 @@ public:
 	static std::shared_ptr<Renderer> GetRenderer();
 
 	void Draw();
+	
+	std::shared_ptr<Shader> LoadShaderFromGLSLPath(const std::string& glslpath);
+	const std::shared_ptr<Shader>& GetShader() const { return mActiveShader; }
 
-	std::shared_ptr<Shader> GetShader() const { return m_Shader; }
+	void DeleteShaderCache() { mShaderCache.clear(); mActiveShader = nullptr; }
+
+	std::unordered_map<std::string, std::shared_ptr<Shader>> GetRawShaderCache() const { return mShaderCache; }
 
 private: 
 
@@ -20,9 +25,10 @@ private:
 
 	static std::shared_ptr<Renderer> s_Instance;
 
-	uint32_t m_Vbo_id;
-	uint32_t m_Vao_id;
-	uint32_t m_Ibo_id;
+	uint32_t mVao_id;
+	uint32_t mVbo_id;
+	uint32_t mIbo_id;
 
-	std::shared_ptr<Shader> m_Shader;
+	std::unordered_map<std::string, std::shared_ptr<Shader>> mShaderCache;
+	std::shared_ptr<Shader> mActiveShader;
 };

@@ -24,23 +24,23 @@ public:
 		RefreshRate rrate = RefreshRate_60hz
 	) 
 	{
-		m_Data.m_Width			= width;
-		m_Data.m_Height			= height;
-		m_Data.m_Title			= title;
-		m_Data.m_RefreshRate	= rrate;
+		mData.mWidth			= width;
+		mData.mHeight			= height;
+		mData.mTitle			= title;
+		mData.mRefreshRate	= rrate;
 
 		Init();
 	}
 
 	~Window() = default;
 
-	uint32_t	 GetWidth()			const { return m_Data.m_Width;		 }
-	uint32_t	 GetHeight()		const { return m_Data.m_Height;		 }
-	std::string  GetTitle()			const { return m_Data.m_Title;		 }
-	RefreshRate  GetRefreshRate()	const { return m_Data.m_RefreshRate; }
+	uint32_t	 GetWidth()			const { return mData.mWidth;		 }
+	uint32_t	 GetHeight()		const { return mData.mHeight;		 }
+	std::string  GetTitle()			const { return mData.mTitle;		 }
+	RefreshRate  GetRefreshRate()	const { return mData.mRefreshRate; }
 
-	bool		 IsVsync()   const { return m_Data.m_RefreshRate == RefreshRate_60hz;  }
-	bool		 IsActive()	 const { return m_IsActive; }
+	bool		 IsVsync()   const { return mData.mRefreshRate == RefreshRate_60hz;  }
+	bool		 IsActive()	 const { return mIsActive; }
 
 	void SetRefreshRate(RefreshRate);
 	void SetTitle(std::string);
@@ -54,17 +54,17 @@ public:
 private:
 	void Init();
 
-	GLFWwindow* m_Window;
+	GLFWwindow* mWindow;
 	
 	struct WindowData
 	{
-		uint32_t m_Width, m_Height;
-		std::string m_Title;
-		RefreshRate m_RefreshRate;
+		uint32_t mWidth, mHeight;
+		std::string mTitle;
+		RefreshRate mRefreshRate;
 
-		EventProcedure m_Procedure;
+		EventProcedure mProcedure;
 	};
 
-	bool m_IsActive = false;
-	WindowData m_Data;
+	bool mIsActive = false;
+	WindowData mData;
 };

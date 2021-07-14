@@ -5,7 +5,7 @@
 class MouseButtonPressed : public Event
 {
 public:
-	MouseButtonPressed(int button) : m_Button(button) {}
+	MouseButtonPressed(int button) : mButton(button) {}
 
 	virtual EventType	GetEventType()		const { return EventType::MouseButtonPressed; }
 	virtual const char* GetEventName()		const { return "MouseButtonPressed"; }
@@ -13,21 +13,21 @@ public:
 
 	virtual std::string GetEventInfo() const {
 		std::stringstream ss;
-		ss << "MouseButtonPressed: [Button(" << m_Button << ")]";
+		ss << "MouseButtonPressed: [Button(" << mButton << ")]";
 		return ss.str();
 	}
 
-	virtual bool IsHandled() const { return m_Handled; }
+	virtual bool IsHandled() const { return mHandled; }
 	static EventType GetEventStaticType() { return EventType::MouseButtonPressed; }
 
 private:
-	int m_Button;
+	int mButton;
 };
 
 class MouseButtonReleased : public Event
 {
 public:
-	MouseButtonReleased(int button) : m_Button(button) {}
+	MouseButtonReleased(int button) : mButton(button) {}
 
 	virtual EventType	GetEventType()		const { return EventType::MouseButtonReleased; }
 	virtual const char* GetEventName()		const { return "MouseButtonReleased"; }
@@ -35,65 +35,65 @@ public:
 
 	virtual std::string GetEventInfo() const {
 		std::stringstream ss;
-		ss << "MouseButtonReleased: [Button(" << m_Button << ")]";
+		ss << "MouseButtonReleased: [Button(" << mButton << ")]";
 		return ss.str();
 	}
 
-	virtual bool IsHandled() const { return m_Handled; }
+	virtual bool IsHandled() const { return mHandled; }
 	static EventType GetEventStaticType() { return EventType::MouseButtonReleased; }
 
 private:
-	int m_Button;
+	int mButton;
 };
 
 class MouseMoved : public Event
 {
 public:
-	MouseMoved(float x, float y) : m_X(x), m_Y(y) {}
+	MouseMoved(float x, float y) : mX(x), mY(y) {}
 
 	virtual EventType	GetEventType()		const { return EventType::MouseMoved; }
 	virtual const char* GetEventName()		const { return "MouseMoved"; }
 	virtual std::string GetEventNameStr()   const { return "MouseMoved"; }
 
-	float GetHorizontalPosition() const { return m_X; }
-	float GetVerticalPosition()	  const { return m_Y; }
+	float GetHorizontalPosition() const { return mX; }
+	float GetVerticalPosition()	  const { return mY; }
 
 	virtual std::string GetEventInfo() const {
 		std::stringstream ss;
-		ss << "MouseMoved: [x(" << m_X << ") | y(" << m_Y << ")]";
+		ss << "MouseMoved: [x(" << mX << ") | y(" << mY << ")]";
 		return ss.str();
 	}
 
-	virtual bool IsHandled() const { return m_Handled; }
+	virtual bool IsHandled() const { return mHandled; }
 	static EventType GetEventStaticType() { return EventType::MouseMoved; }
 
 private:
-	float m_X;
-	float m_Y;
+	float mX;
+	float mY;
 };
 
 class MouseWheelScrolled : public Event
 {
 public: 
-	MouseWheelScrolled(float xoff, float yoff) : m_Wheel_xOffset(xoff), m_Wheel_yOffset(yoff) {}
+	MouseWheelScrolled(float xoff, float yoff) : mWheel_xOffset(xoff), mWheel_yOffset(yoff) {}
 
 	virtual EventType	GetEventType()		const { return EventType::MouseWheelScrolled; }
 	virtual const char* GetEventName()		const { return "MouseWheelScrolled"; }
 	virtual std::string GetEventNameStr()   const { return "MouseWheelScrolled"; }
 
-	float GetHorizontalOffset() const { return m_Wheel_xOffset; }
-	float GetVerticalOffset()	const { return m_Wheel_yOffset; }
+	float GetHorizontalOffset() const { return mWheel_xOffset; }
+	float GetVerticalOffset()	const { return mWheel_yOffset; }
 
 	virtual std::string GetEventInfo() const {
 		std::stringstream ss;
-		ss << "MouseWheelScrolled: [x(" << m_Wheel_xOffset << ") | y(" << m_Wheel_yOffset << ")]";
+		ss << "MouseWheelScrolled: [x(" << mWheel_xOffset << ") | y(" << mWheel_yOffset << ")]";
 		return ss.str();
 	}
 
-	virtual bool IsHandled() const { return m_Handled; }
+	virtual bool IsHandled() const { return mHandled; }
 	static EventType GetEventStaticType() { return EventType::MouseButtonReleased; }
 
 private:
-	float m_Wheel_xOffset;
-	float m_Wheel_yOffset;
+	float mWheel_xOffset;
+	float mWheel_yOffset;
 };

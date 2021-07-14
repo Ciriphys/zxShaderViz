@@ -17,12 +17,14 @@ enum class EventType
 
 	AppTick,
 	AppRender,
+
+	FilesDropped
 };
 
 class Event
 {
 protected:
-	bool m_Handled = false;
+	bool mHandled = false;
 
 	friend class EventDispatcher;
 
@@ -45,16 +47,16 @@ private:
 	template <typename T>
 	using EventProcedure = std::function<bool(T&)>;
 
-	Event& m_Event;
+	Event& mEvent;
 public:
-	EventDispatcher(Event& e) : m_Event(e) {}
+	EventDispatcher(Event& e) : mEvent(e) {}
 
 	template <typename T>
 	bool Emit(EventProcedure<T> function)
 	{
-		if (m_Event.GetEventType() == T::GetEventStaticType())
+		if (mEvent.GetEventType() == T::GetEventStaticType())
 		{
-			m_Event.m_Handled = function(*(T*)&m_Event);
+			mEvent.mHandled = function(*(T*)&mEvent);
 			return true;
 		}
 

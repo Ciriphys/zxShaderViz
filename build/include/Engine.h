@@ -22,14 +22,15 @@ private:
 	void OnEvent(Event&);
 	bool OnKeyPressed(KeyPressed&);
 	bool OnWindowClosed(WindowClosed&);
+	bool OnFilesDropped(FilesDropped&);
 	bool OnWindowResized(WindowResized&);
 	bool OnMouseMoved(MouseMoved&);
 
-	std::shared_ptr<Window> m_Window;
-	std::shared_ptr<Renderer> m_Renderer;
+	std::shared_ptr<Window> mWindow;
+	std::shared_ptr<Renderer> mRenderer;
 	static std::shared_ptr<Engine> s_Instance;
 
-	bool m_Minimized;
+	bool mMinimized;
 	float lastFrameTime = 0.0f;
 
 	glm::vec2 mousePos = {};

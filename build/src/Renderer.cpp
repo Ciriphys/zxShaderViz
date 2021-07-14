@@ -9,7 +9,7 @@ std::shared_ptr<Renderer> Renderer::s_Instance = nullptr;
 
 Renderer::Renderer() 
 {
-	m_Shader = std::make_shared<Shader>("assets/shader/noise2.glsl");
+	mActiveShader = nullptr;
 	Init();
 }
 
@@ -40,15 +40,15 @@ void Renderer::Init()
 		0, 1, 2, 3, 2, 0
 	};
 
-	glGenVertexArrays(1, &m_Vao_id);
-	glBindVertexArray(m_Vao_id);
+	glGenVertexArrays(1, &mVao_id);
+	glBindVertexArray(mVao_id);
 
-	glGenBuffers(1, &m_Vbo_id);
-	glBindBuffer(GL_ARRAY_BUFFER, m_Vbo_id);
+	glGenBuffers(1, &mVbo_id);
+	glBindBuffer(GL_ARRAY_BUFFER, mVbo_id);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(verts), verts, GL_STATIC_DRAW);
 
-	glGenBuffers(1, &m_Ibo_id);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_Ibo_id);
+	glGenBuffers(1, &mIbo_id);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mIbo_id);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), 0);
@@ -57,7 +57,37 @@ void Renderer::Init()
 
 void Renderer::Draw()
 {
-	glBindVertexArray(m_Vao_id);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_Ibo_id);
-	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+	if (mActiveShader->IsLinked())
+	{
+		mActiveShader->Enable();
+		glBindVertexArray(mVao_id);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mIbo_id);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+	}
+	else
+	{
+		//Log
+	}
+}
+
+std::shared_ptr<Shader> Renderer::LoadShaderFromGLSLPath(const std::string& glslpath)
+{
+	auto it = mShaderCache.find(glslpath);
+	if (it != mShaderCache.end())
+	{
+		mActiveShader = it->second;
+		std::cout << "Loading cached from path: " << it->first << "\n";
+		return mActiveShader;
+	}
+
+	if (glslpath.find(".glsl") == std::string::npos)
+	{
+		mActiveShader = nullptr;
+		return mActiveShader;
+	}
+
+	std::cout << "\nLoading from path: " << glslpath << "\n";
+	mActiveShader = std::make_shared<Shader>(glslpath);
+	if (mActiveShader->IsLinked()) mShaderCache[glslpath] = mActiveShader;
+	return mActiveShader;
 }

@@ -424,7 +424,6 @@
     <ClInclude Include="include\Utils\Shader.h" />
     <ClInclude Include="include\Utils\TimeStep.h" />
     <ClInclude Include="include\Window.h" />
-    <ClInclude Include="include\WindowEventsDispatcher.h" />
     <ClInclude Include="include\sppch.h" />
   </ItemGroup>
   <ItemGroup>
@@ -432,7 +431,6 @@
     <ClCompile Include="src\Renderer.cpp" />
     <ClCompile Include="src\Utils\Shader.cpp" />
     <ClCompile Include="src\Window.cpp" />
-    <ClCompile Include="src\WindowEventsDispatcher.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\sppch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>

@@ -14,13 +14,13 @@ static uint32_t s_KeyRepeats = 0;
 
 void Window::SetEventCallbackProcedure(const EventProcedure& eventProcedure)
 {
-	m_Data.m_Procedure = eventProcedure;
+	mData.mProcedure = eventProcedure;
 }
 
 void Window::Update()
 {
 	glfwPollEvents();
-	glfwSwapBuffers(m_Window);
+	glfwSwapBuffers(mWindow);
 }
 
 void Window::Clear()
@@ -33,19 +33,19 @@ void Window::Close()
 {
 	glfwTerminate();
 	s_glfwInit = false;
-	m_IsActive = false;
+	mIsActive = false;
 }
 
 void Window::SetRefreshRate(RefreshRate rrate)
 {
-	m_Data.m_RefreshRate = rrate;
-	glfwSwapInterval(m_Data.m_RefreshRate);
+	mData.mRefreshRate = rrate;
+	glfwSwapInterval(mData.mRefreshRate);
 }
 
 void Window::SetTitle(std::string title)
 {
-	m_Data.m_Title = title;
-	glfwSetWindowTitle(m_Window, m_Data.m_Title.c_str());
+	mData.mTitle = title;
+	glfwSetWindowTitle(mWindow, mData.mTitle.c_str());
 }
 
 void Window::Init()
@@ -61,8 +61,8 @@ void Window::Init()
 		s_glfwInit = true;
 	}
 
-	m_Window = glfwCreateWindow(m_Data.m_Width, m_Data.m_Height, m_Data.m_Title.c_str(), nullptr, nullptr);
-	glfwMakeContextCurrent(m_Window);
+	mWindow = glfwCreateWindow(mData.mWidth, mData.mHeight, mData.mTitle.c_str(), nullptr, nullptr);
+	glfwMakeContextCurrent(mWindow);
 
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 	{
@@ -70,54 +70,58 @@ void Window::Init()
 		// Error Handling
 	}
 
-	glfwSetWindowUserPointer(m_Window, reinterpret_cast<void*>(&m_Data));
+	glfwSetWindowUserPointer(mWindow, reinterpret_cast<void*>(&mData));
+	glViewport(0, 0, mData.mWidth, mData.mHeight);
 
 	// Setup Event Handling
-	glfwSetKeyCallback(m_Window, [](GLFWwindow* wnd, int key, int scancode, int action, int mods)
+	glfwSetKeyCallback(mWindow, [](GLFWwindow* wnd, int key, int scancode, int action, int mods)
 		{
 			WindowData& data = *(WindowData*)glfwGetWindowUserPointer(wnd);
 
 			switch (action)
 			{
-			case GLFW_PRESS:
-			{
-				KeyPressed e(key, s_KeyRepeats);
-				data.m_Procedure(e);
-				break;
-			}
-			case GLFW_RELEASE:
-			{
-				s_KeyRepeats = 0;
-				KeyReleased e(key);
-				data.m_Procedure(e);
-				break;
-			}
-			case GLFW_REPEAT:
-			{
-				s_KeyRepeats++;
-				KeyPressed e(key, s_KeyRepeats);
-				data.m_Procedure(e);
-				break;
-			}
+				case GLFW_PRESS:
+				{
+					KeyPressed e(key, s_KeyRepeats);
+					data.mProcedure(e);
+					break;
+				}
+				case GLFW_RELEASE:
+				{
+					s_KeyRepeats = 0;
+					KeyReleased e(key);
+					data.mProcedure(e);
+					break;
+				}
+				case GLFW_REPEAT:
+				{
+					s_KeyRepeats++;
+					KeyPressed e(key, s_KeyRepeats);
+					data.mProcedure(e);
+					break;
+				}
 			}
 		});
-	glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* wnd, int width, int height)
+
+	glfwSetWindowSizeCallback(mWindow, [](GLFWwindow* wnd, int width, int height)
 		{
 			WindowData& data = *reinterpret_cast<WindowData*>(glfwGetWindowUserPointer(wnd));
-			data.m_Width = width;
-			data.m_Height = height;
+			data.mWidth = width;
+			data.mHeight = height;
 
 			WindowResized e(width, height);
-			data.m_Procedure(e);
+			data.mProcedure(e);
 		});
-	glfwSetWindowCloseCallback(m_Window, [](GLFWwindow* wnd)
+
+	glfwSetWindowCloseCallback(mWindow, [](GLFWwindow* wnd)
 		{
 			WindowData& data = *reinterpret_cast<WindowData*>(glfwGetWindowUserPointer(wnd));
 
 			WindowClosed e;
-			data.m_Procedure(e);
+			data.mProcedure(e);
 		});
-	glfwSetMouseButtonCallback(m_Window, [](GLFWwindow* wnd, int button, int action, int mods)
+
+	glfwSetMouseButtonCallback(mWindow, [](GLFWwindow* wnd, int button, int action, int mods)
 		{
 			WindowData& data = *reinterpret_cast<WindowData*>(glfwGetWindowUserPointer(wnd));
 
@@ -126,31 +130,44 @@ void Window::Init()
 				case GLFW_PRESS:
 				{
 					MouseButtonPressed e(button);
-					data.m_Procedure(e);
+					data.mProcedure(e);
 					break;
 				}
 				case GLFW_RELEASE:
 				{
 					MouseButtonReleased e(button);
-					data.m_Procedure(e);
+					data.mProcedure(e);
 					break;
 				}
 			}
 		});
-	glfwSetScrollCallback(m_Window, [](GLFWwindow* wnd, double xoffset, double yoffset)
+
+	glfwSetScrollCallback(mWindow, [](GLFWwindow* wnd, double xoffset, double yoffset)
 		{
 			WindowData& data = *reinterpret_cast<WindowData*>(glfwGetWindowUserPointer(wnd));
 
 			MouseWheelScrolled e(xoffset, yoffset);
-			data.m_Procedure(e);
+			data.mProcedure(e);
 		});
-	glfwSetCursorPosCallback(m_Window, [](GLFWwindow* wnd, double xPos, double yPos)
+
+	glfwSetCursorPosCallback(mWindow, [](GLFWwindow* wnd, double xPos, double yPos)
 		{
 			WindowData& data = *reinterpret_cast<WindowData*>(glfwGetWindowUserPointer(wnd));
 
 			MouseMoved e(xPos, yPos);
-			data.m_Procedure(e);
+			data.mProcedure(e);
 		});
 
-	m_IsActive = true;
+	glfwSetFramebufferSizeCallback(mWindow, [](GLFWwindow* wnd, int width, int height) {
+			glViewport(0, 0, width, height);
+	});
+
+	glfwSetDropCallback(mWindow, [](GLFWwindow* wnd, int num, const char* files[]) {
+		WindowData& data = *reinterpret_cast<WindowData*>(glfwGetWindowUserPointer(wnd));
+
+		FilesDropped e(num, files);
+		data.mProcedure(e);
+	});
+
+	mIsActive = true;
 }

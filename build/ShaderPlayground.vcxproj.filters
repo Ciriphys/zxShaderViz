@@ -894,9 +894,6 @@
     <ClInclude Include="include\Window.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="include\WindowEventsDispatcher.h">
-      <Filter>include</Filter>
-    </ClInclude>
     <ClInclude Include="include\sppch.h">
       <Filter>include</Filter>
     </ClInclude>
@@ -912,9 +909,6 @@
       <Filter>src\Utils</Filter>
     </ClCompile>
     <ClCompile Include="src\Window.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\WindowEventsDispatcher.cpp">
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="src\main.cpp">
