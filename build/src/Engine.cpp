@@ -3,16 +3,21 @@
 #include <Engine.h>
 #include <Utils/TimeStep.h>
 
-std::shared_ptr<Engine> Engine::s_Instance = nullptr;
+Engine* Engine::s_Instance = nullptr;
 
 Engine::Engine()
 {
+	s_Instance = this;
+
 	mWindow = std::make_shared<Window>();
 	mWindow->SetEventCallbackProcedure(BIND_FUNCTION(&Engine::OnEvent, this));
+	mImGuiFrame = std::make_unique<ImGui_Frame>();
 
 	mRenderer = Renderer::GetRenderer();
 
 	mMinimized = (mWindow->GetWidth() == 0 && mWindow->GetHeight() == 0);
+
+	mUIFrames.push_back(std::make_unique<MenuBarFrame>());
 }
 
 void Engine::RenderLoop()
@@ -22,11 +27,17 @@ void Engine::RenderLoop()
 	while (mWindow->IsActive())
 	{
 		mWindow->Update();
-		if (mMinimized) continue;
-
-		ts.Update();
+		if (mMinimized || !mWindow->IsActive()) continue;
 
 		mWindow->Clear();
+		ts.Update();
+		mImGuiFrame->Update(ts.GetDeltaTimef());
+
+		mImGuiFrame->Begin();
+		for (auto& uiframe : mUIFrames)
+			uiframe->DrawUI();
+		mImGuiFrame->End();
+
 		if (!mRenderer->GetShader()) continue;
 
 		mRenderer->GetShader()->SetUniform("u_Time", ts.GetExecutionTimef());	
@@ -36,10 +47,10 @@ void Engine::RenderLoop()
 	}
 }
 
-std::shared_ptr<Engine> Engine::GetEngineInstance()
+Engine& Engine::GetEngineInstance()
 {
-	if (!s_Instance) s_Instance = std::shared_ptr<Engine>(new Engine());
-	return s_Instance;
+	if (!s_Instance) new Engine();
+	return *s_Instance;
 }
 
 void Engine::OnEvent(Event& e)

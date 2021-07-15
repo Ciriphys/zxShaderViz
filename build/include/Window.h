@@ -6,6 +6,11 @@
 struct GLFWwindow;
 using EventProcedure = std::function<void(Event&)>;
 
+static void glfw_error_callback(int error, const char* description)
+{
+	fprintf(stderr, "Glfw Error %d: %s\n", error, description);
+}
+
 enum RefreshRate : unsigned int
 {
 	RefreshRate_Unlimited = 0,
@@ -38,6 +43,7 @@ public:
 	uint32_t	 GetHeight()		const { return mData.mHeight;		 }
 	std::string  GetTitle()			const { return mData.mTitle;		 }
 	RefreshRate  GetRefreshRate()	const { return mData.mRefreshRate; }
+	GLFWwindow* GetNativeWindow()   const { return mWindow; }
 
 	bool		 IsVsync()   const { return mData.mRefreshRate == RefreshRate_60hz;  }
 	bool		 IsActive()	 const { return mIsActive; }

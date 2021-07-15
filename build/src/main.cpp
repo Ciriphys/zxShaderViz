@@ -8,8 +8,8 @@
 
 int main()
 {
-	auto engine = Engine::GetEngineInstance();
-	engine->RenderLoop();
+	auto& engine = Engine::GetEngineInstance();
+	engine.RenderLoop();
 
 	return 0;
 }

@@ -19,8 +19,8 @@ void Window::SetEventCallbackProcedure(const EventProcedure& eventProcedure)
 
 void Window::Update()
 {
-	glfwPollEvents();
 	glfwSwapBuffers(mWindow);
+	glfwPollEvents();
 }
 
 void Window::Clear()
@@ -52,6 +52,7 @@ void Window::Init()
 {
 	if (!s_glfwInit)
 	{
+		glfwSetErrorCallback(glfw_error_callback);
 		if (!glfwInit())
 		{
 			std::cerr << "Couldn't initialize GLFW!" << std::endl;

@@ -8,6 +8,8 @@
 #include <Renderer.h>
 #include <Window.h>
 
+#include "ImGui_Frame.h"
+
 class Engine
 {
 public:
@@ -16,7 +18,8 @@ public:
 
 	void RenderLoop();
 
-	static std::shared_ptr<Engine> GetEngineInstance();
+	static Engine& GetEngineInstance();
+	std::shared_ptr<Window> GetWindow() const { return mWindow; }
 
 private: 
 	void OnEvent(Event&);
@@ -28,7 +31,11 @@ private:
 
 	std::shared_ptr<Window> mWindow;
 	std::shared_ptr<Renderer> mRenderer;
-	static std::shared_ptr<Engine> s_Instance;
+	std::unique_ptr<ImGui_Frame> mImGuiFrame;
+
+	static Engine* s_Instance;
+
+	std::vector<std::unique_ptr<UIFrame>> mUIFrames;
 
 	bool mMinimized;
 	float lastFrameTime = 0.0f;

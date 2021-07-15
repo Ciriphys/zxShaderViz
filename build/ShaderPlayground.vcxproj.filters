@@ -897,6 +897,7 @@
     <ClInclude Include="include\sppch.h">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="include\ImGui_Frame.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Engine.cpp">
@@ -917,5 +918,6 @@
     <ClCompile Include="src\sppch.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="src\ImGui_Frame.cpp" />
   </ItemGroup>
 </Project>

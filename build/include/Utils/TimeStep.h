@@ -14,7 +14,7 @@ public:
 	void Update()
 	{
 		double currentFrameTime = glfwGetTime();
-		deltaTime = lastFrameTime - currentFrameTime;
+		deltaTime = currentFrameTime - lastFrameTime;
 		lastFrameTime = currentFrameTime;
 	}
 
