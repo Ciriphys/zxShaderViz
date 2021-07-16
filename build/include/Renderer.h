@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Utils/Shader.h>
+#include <FrameBuffer.h>
 
 class Renderer
 {
@@ -13,9 +14,13 @@ public:
 	void Draw();
 	
 	std::shared_ptr<Shader> LoadShaderFromGLSLPath(const std::string& glslpath);
+
+	unsigned int GetFrameBufferColorAttachment() const { return mColorAttachment; }
+
+	const std::shared_ptr<FrameBuffer>& GetFrameBuffer() const { return mFrameBuffer; }
 	const std::shared_ptr<Shader>& GetShader() const { return mActiveShader; }
 
-	void DeleteShaderCache() { mShaderCache.clear(); mActiveShader = nullptr; }
+	void DeleteShaderCache() { mShaderCache.clear(); mActiveShader = nullptr; mFrameBuffer->DeleteColorAttachment(); mFrameBuffer->Invalidate(); }
 
 	std::unordered_map<std::string, std::shared_ptr<Shader>> GetRawShaderCache() const { return mShaderCache; }
 
@@ -31,4 +36,9 @@ private:
 
 	std::unordered_map<std::string, std::shared_ptr<Shader>> mShaderCache;
 	std::shared_ptr<Shader> mActiveShader;
+	std::shared_ptr<FrameBuffer> mFrameBuffer;
+	
+	unsigned int mFrameBufferId = 0;
+	unsigned int mColorAttachment = 0;
+	unsigned int mWidth = 0, mHeight = 0;
 };

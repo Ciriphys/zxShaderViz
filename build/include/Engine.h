@@ -35,7 +35,7 @@ private:
 
 	static Engine* s_Instance;
 
-	std::vector<std::unique_ptr<UIFrame>> mUIFrames;
+	std::vector<UIFrame*> mUIFrames;
 
 	bool mMinimized;
 	float lastFrameTime = 0.0f;

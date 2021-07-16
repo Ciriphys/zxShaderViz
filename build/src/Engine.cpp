@@ -1,6 +1,7 @@
 #include "sppch.h"
 
 #include <Engine.h>
+#include <FrameBuffer.h>
 #include <Utils/TimeStep.h>
 
 Engine* Engine::s_Instance = nullptr;
@@ -17,7 +18,8 @@ Engine::Engine()
 
 	mMinimized = (mWindow->GetWidth() == 0 && mWindow->GetHeight() == 0);
 
-	mUIFrames.push_back(std::make_unique<MenuBarFrame>());
+	mUIFrames.push_back(new MenuBarFrame());
+	mUIFrames.push_back(new ViewportFrame());
 }
 
 void Engine::RenderLoop()
@@ -31,7 +33,8 @@ void Engine::RenderLoop()
 
 		mWindow->Clear();
 		ts.Update();
-		mImGuiFrame->Update(ts.GetDeltaTimef());
+
+		reinterpret_cast<ViewportFrame*>(mUIFrames[1])->SetFrameBuffer(mRenderer->GetFrameBuffer());
 
 		mImGuiFrame->Begin();
 		for (auto& uiframe : mUIFrames)

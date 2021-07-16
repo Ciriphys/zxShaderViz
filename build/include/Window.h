@@ -64,9 +64,9 @@ private:
 	
 	struct WindowData
 	{
-		uint32_t mWidth, mHeight;
+		uint32_t mWidth = 0, mHeight = 0;
 		std::string mTitle;
-		RefreshRate mRefreshRate;
+		RefreshRate mRefreshRate = RefreshRate_60hz;
 
 		EventProcedure mProcedure;
 	};

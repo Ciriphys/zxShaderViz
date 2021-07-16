@@ -139,7 +139,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="include\ImGui_Frame.h" />
+    <ClInclude Include="include\FrameBuffer.h" />
     <ClInclude Include="ThirdParty\glm\glm\common.hpp" />
     <ClInclude Include="ThirdParty\glm\glm\detail\_features.hpp" />
     <ClInclude Include="ThirdParty\glm\glm\detail\_fixes.hpp" />
@@ -421,6 +421,7 @@
     <ClInclude Include="include\Events\KeyEvents.h" />
     <ClInclude Include="include\Events\MouseEvents.h" />
     <ClInclude Include="include\Events\WindowEvents.h" />
+    <ClInclude Include="include\ImGui_Frame.h" />
     <ClInclude Include="include\Renderer.h" />
     <ClInclude Include="include\Utils\Shader.h" />
     <ClInclude Include="include\Utils\TimeStep.h" />
@@ -428,6 +429,7 @@
     <ClInclude Include="include\sppch.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\FrameBuffer.cpp" />
     <ClCompile Include="src\Engine.cpp" />
     <ClCompile Include="src\ImGui_Frame.cpp" />
     <ClCompile Include="src\Renderer.cpp" />
@@ -448,6 +450,9 @@
     <ProjectReference Include="ThirdParty\ImGui\ImGui.vcxproj">
       <Project>{C0FF640D-2C14-8DBE-F595-301E616989EF}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="assets\shader\shader.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

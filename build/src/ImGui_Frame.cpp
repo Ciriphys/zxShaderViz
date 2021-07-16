@@ -2,6 +2,7 @@
 #include "ImGui_Frame.h"
 
 #include "Engine.h"
+#include <GLFW/glfw3.h>
 
 ImGui_Frame::ImGui_Frame()
 {
@@ -22,6 +23,14 @@ void ImGui_Frame::End()
 
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+	if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+	{
+		GLFWwindow* backup_current_context = glfwGetCurrentContext();
+		ImGui::UpdatePlatformWindows();
+		ImGui::RenderPlatformWindowsDefault();
+		glfwMakeContextCurrent(backup_current_context);
+	}
 }
 
 void ImGui_Frame::Update(float deltaTime)
@@ -36,9 +45,19 @@ void ImGui_Frame::Init()
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO();
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;       // Enable Keyboard Controls
+	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+	io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+	io.Fonts->AddFontFromFileTTF("assets/font/OpenSans-regular.ttf", 18.0f);
 
 	ImGui::StyleColorsDark();
 	SetWindowStyle();
+	
+	ImGuiStyle& style = ImGui::GetStyle();
+	if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+	{
+		style.WindowRounding = 0.0f;
+		style.Colors[ImGuiCol_WindowBg].w = 1.0f;
+	}
 
 	auto& app = Engine::GetEngineInstance();
 	GLFWwindow* window = static_cast<GLFWwindow*>(app.GetWindow()->GetNativeWindow());
@@ -81,4 +100,20 @@ void ImGui_Frame::Finalize()
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplGlfw_Shutdown();
 	ImGui::DestroyContext();
+}
+
+void ViewportFrame::DrawUI()
+{
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, { 0, 0 });
+	ImGui::Begin("Viewport");
+	ImVec2 viewportSize = ImGui::GetContentRegionAvail();
+	if (mViewportSize != (*(glm::vec2*)&viewportSize))
+	{
+		mFrameBuffer->Resize((unsigned int)viewportSize.x, (unsigned int)viewportSize.y);
+		mViewportSize = { viewportSize.x, viewportSize.y };
+	}
+	uint32_t textureID = mFrameBuffer->GetColorAttachment();
+	ImGui::Image(reinterpret_cast<void*>(textureID), ImVec2{mViewportSize.x, mViewportSize.y}, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
+	ImGui::End();
+	ImGui::PopStyleVar();
 }

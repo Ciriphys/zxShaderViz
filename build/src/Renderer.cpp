@@ -7,9 +7,20 @@
 
 std::shared_ptr<Renderer> Renderer::s_Instance = nullptr;
 
+std::string GetSubstring(const std::string& str, unsigned int from, unsigned int to)
+{
+	std::string result = "";
+
+	for (unsigned int i = from + 1; i < to + 1; i++)
+		result += str[i];
+
+	return result;
+}
+
 Renderer::Renderer() 
 {
 	mActiveShader = nullptr;
+	mFrameBuffer = std::make_shared<FrameBuffer>();
 	Init();
 }
 
@@ -53,16 +64,30 @@ void Renderer::Init()
 
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), 0);
 	glEnableVertexAttribArray(0);
+
+	//glGenFramebuffers(1, &mFrameBufferId);
+	//glBindFramebuffer(GL_FRAMEBUFFER, mFrameBufferId);
+	//
+	//glGenTextures(1, &mColorAttachment);
+	//glBindTexture(GL_TEXTURE_2D, mColorAttachment);
+	//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 1280, 720, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 }
 
 void Renderer::Draw()
 {
 	if (mActiveShader->IsLinked())
 	{
+		//glBindFramebuffer(GL_FRAMEBUFFER, mFrameBufferId);
+		//glClearColor(1.1f, 1.1f, 1.1f, 1.0f);
+		//glClear(GL_COLOR_BUFFER_BIT);
+		mFrameBuffer->Enable();
 		mActiveShader->Enable();
 		glBindVertexArray(mVao_id);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mIbo_id);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		mFrameBuffer->Disable();
 	}
 	else
 	{
@@ -82,12 +107,17 @@ std::shared_ptr<Shader> Renderer::LoadShaderFromGLSLPath(const std::string& glsl
 
 	if (glslpath.find(".glsl") == std::string::npos)
 	{
+		std::cout << "File {" << GetSubstring(glslpath, glslpath.find_last_of("\\"), glslpath.length() - 1) << "} is not a glsl file!\n";
 		mActiveShader = nullptr;
 		return mActiveShader;
 	}
 
 	std::cout << "\nLoading from path: " << glslpath << "\n";
-	mActiveShader = std::make_shared<Shader>(glslpath);
-	if (mActiveShader->IsLinked()) mShaderCache[glslpath] = mActiveShader;
+	auto newShader = std::make_shared<Shader>(glslpath);
+	if (newShader->IsLinked())
+	{
+		mActiveShader = newShader;
+		mShaderCache[glslpath] = mActiveShader;
+	}
 	return mActiveShader;
 }
