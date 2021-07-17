@@ -95,10 +95,10 @@ void Renderer::Draw()
 	}
 }
 
-std::shared_ptr<Shader> Renderer::LoadShaderFromGLSLPath(const std::string& glslpath)
+std::shared_ptr<Shader> Renderer::LoadShaderFromGLSLPath(const std::string& glslpath, bool recache)
 {
 	auto it = mShaderCache.find(glslpath);
-	if (it != mShaderCache.end())
+	if (it != mShaderCache.end() && !recache)
 	{
 		mActiveShader = it->second;
 		std::cout << "Loading cached from path: " << it->first << "\n";
@@ -108,16 +108,17 @@ std::shared_ptr<Shader> Renderer::LoadShaderFromGLSLPath(const std::string& glsl
 	if (glslpath.find(".glsl") == std::string::npos)
 	{
 		std::cout << "File {" << GetSubstring(glslpath, glslpath.find_last_of("\\"), glslpath.length() - 1) << "} is not a glsl file!\n";
-		mActiveShader = nullptr;
-		return mActiveShader;
+		//mActiveShader = nullptr;
+		return nullptr;
 	}
 
 	std::cout << "\nLoading from path: " << glslpath << "\n";
-	auto newShader = std::make_shared<Shader>(glslpath);
-	if (newShader->IsLinked())
-	{
-		mActiveShader = newShader;
-		mShaderCache[glslpath] = mActiveShader;
-	}
+	mActiveShader = std::make_shared<Shader>(glslpath);
+	mShaderCache[glslpath] = mActiveShader;
+	//if (newShader->IsLinked())
+	//{
+	//	mActiveShader = newShader;
+	//	mShaderCache[glslpath] = mActiveShader;
+	//}
 	return mActiveShader;
 }

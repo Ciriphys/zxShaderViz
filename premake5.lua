@@ -4,10 +4,13 @@ workspace "ShaderPlayground"
 
   outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
     
-  ExternalDirectories = {}
-  ExternalDirectories["Glad"]  = "build/ThirdParty/Glad/include"
-  ExternalDirectories["GLFW"]  = "build/ThirdParty/GLFW/include"
-  ExternalDirectories["ImGui"] = "build/ThirdParty/ImGui"
+  ExtLibs = {}
+  ExtLibs["Glad"]  = "build/ThirdParty/Glad/include"
+  ExtLibs["GLFW"]  = "build/ThirdParty/GLFW/include"
+  ExtLibs["ImGui"] = "build/ThirdParty/ImGui"
+
+  IncludeDirectories = {}
+  IncludeDirectories["glm"] = "build/ThirdParty/glm"
 
   include "build/ThirdParty/Glad"
   include "build/ThirdParty/GLFW"
@@ -21,8 +24,23 @@ project "ShaderPlayground"
   targetdir ( "bin/".. outputdir .. "/%{prj.name}" )
   objdir    ( "bin/intermediates/" .. outputdir .. "/%{prj.name}" )
 
-  files { "build/src/**.cpp", "build/include/**.h", "build/ThirdParty/glm/glm/**.hpp" }
-  includedirs { "build/src", "build/include",  "build/ThirdParty/glm", "%{ExternalDirectories.Glad}", "%{ExternalDirectories.GLFW}", "%{ExternalDirectories.ImGui}" }
+  files
+  { 
+    "build/src/**.cpp", 
+    "build/include/**.h",
+    "%{IncludeDirectories.glm}/glm/**.hpp",
+  }
+
+  includedirs 
+  {
+     "build/src", 
+     "build/include",
+     "%{IncludeDirectories.glm}",
+     "%{ExtLibs.Glad}", 
+     "%{ExtLibs.GLFW}", 
+     "%{ExtLibs.ImGui}" 
+  }
+
   links { "Glad", "GLFW", "ImGui", "opengl32.lib" }
 
   pchheader "sppch.h"

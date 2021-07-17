@@ -20,6 +20,11 @@ public:
 
 	static Engine& GetEngineInstance();
 	std::shared_ptr<Window> GetWindow() const { return mWindow; }
+	std::unordered_map<std::string, UIFrame*> GetUIFrames() const { return mUIFrames; }
+
+	void OpenFile(const std::string& filepath, bool recache = false);
+	void SaveFile(const std::vector<std::string>& sources);
+	void CloseFile();
 
 private: 
 	void OnEvent(Event&);
@@ -35,7 +40,7 @@ private:
 
 	static Engine* s_Instance;
 
-	std::vector<UIFrame*> mUIFrames;
+	std::unordered_map<std::string, UIFrame*> mUIFrames;
 
 	bool mMinimized;
 	float lastFrameTime = 0.0f;

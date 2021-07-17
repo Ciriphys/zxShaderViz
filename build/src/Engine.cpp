@@ -18,8 +18,11 @@ Engine::Engine()
 
 	mMinimized = (mWindow->GetWidth() == 0 && mWindow->GetHeight() == 0);
 
-	mUIFrames.push_back(new MenuBarFrame());
-	mUIFrames.push_back(new ViewportFrame());
+	auto menuBar = new MenuBarFrame("Menu Bar");
+	auto viewport = new ViewportFrame("Viewport");
+
+	mUIFrames[menuBar ->GetName()] = menuBar;
+	mUIFrames[viewport->GetName()] = viewport;
 }
 
 void Engine::RenderLoop()
@@ -34,18 +37,18 @@ void Engine::RenderLoop()
 		mWindow->Clear();
 		ts.Update();
 
-		reinterpret_cast<ViewportFrame*>(mUIFrames[1])->SetFrameBuffer(mRenderer->GetFrameBuffer());
+		reinterpret_cast<ViewportFrame*>(mUIFrames["Viewport"])->SetFrameBuffer(mRenderer->mFrameBuffer);
 
 		mImGuiFrame->Begin();
-		for (auto& uiframe : mUIFrames)
+		for (auto& [k, uiframe] : mUIFrames)
 			uiframe->DrawUI();
 		mImGuiFrame->End();
 
-		if (!mRenderer->GetShader()) continue;
+		if (!mRenderer->mActiveShader) continue;
 
-		mRenderer->GetShader()->SetUniform("u_Time", ts.GetExecutionTimef());	
-		mRenderer->GetShader()->SetUniform("u_MousePos", mousePos);
-		mRenderer->GetShader()->SetUniform("u_Resolution", { mWindow->GetWidth(), mWindow->GetHeight() });
+		mRenderer->mActiveShader->SetUniform("u_Time", ts.GetExecutionTimef());	
+		mRenderer->mActiveShader->SetUniform("u_MousePos", mousePos);
+		mRenderer->mActiveShader->SetUniform("u_Resolution", { mWindow->GetWidth(), mWindow->GetHeight() });
 		mRenderer->Draw();
 	}
 }
@@ -54,6 +57,34 @@ Engine& Engine::GetEngineInstance()
 {
 	if (!s_Instance) new Engine();
 	return *s_Instance;
+}
+
+void Engine::OpenFile(const std::string& filepath, bool recache)
+{
+	if (mRenderer->LoadShaderFromGLSLPath(filepath, recache))
+		mUIFrames["Shader Editor"] = new ShaderEditorFrame("Shader Editor");
+}
+
+void Engine::SaveFile(const std::vector<std::string>& sources)
+{
+	auto path = mRenderer->mActiveShader->GetFilepath();
+	std::fstream file(path);
+	//file.open(, std::ios::trunc);
+	if (!file)
+	{
+		std::cout << "Could not open file!\n\n";
+		return;
+	}
+	file << "@vertex\n" << sources[0] << "\n@fragment\n" << sources[1];
+	file.close();
+
+	OpenFile(path, true);
+}
+
+void Engine::CloseFile()
+{
+	mRenderer->mActiveShader = nullptr;
+	mUIFrames.erase("Shader Editor");
 }
 
 void Engine::OnEvent(Event& e)
@@ -68,10 +99,10 @@ void Engine::OnEvent(Event& e)
 
 bool Engine::OnKeyPressed(KeyPressed& e)
 {
-	if (e.GetKeyCode() == 65)
+	if (e.GetKeyCode() == 48)
 		mRenderer->DeleteShaderCache();
 
-	return true;
+	return false;
 }
 
 bool Engine::OnWindowClosed(WindowClosed& e)
@@ -84,7 +115,7 @@ bool Engine::OnWindowClosed(WindowClosed& e)
 bool Engine::OnFilesDropped(FilesDropped& e)
 {
 	for (auto& files : e.GetFiles())
-		mRenderer->LoadShaderFromGLSLPath(files);
+		this->OpenFile(files);
 
 	return true;
 }

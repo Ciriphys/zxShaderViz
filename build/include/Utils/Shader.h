@@ -15,6 +15,13 @@ enum class ShaderType : int
 	Error = -1
 };
 
+enum class ShaderStatus : int
+{
+	Linked = 0,
+	Parsed = 1,
+	Error = 2
+};
+
 class Shader
 {
 public:
@@ -41,7 +48,10 @@ public:
 	void Enable() const;
 	void Disable() const;
 
-	bool IsLinked() const { return mLinked; }
+	bool IsLinked() const { return mStatus == ShaderStatus::Linked; }
+	ShaderStatus GetStatus() const { return mStatus; }
+
+	std::string GetFilepath() const { return path; }
 
 	struct ShaderSources
 	{
@@ -54,7 +64,9 @@ private:
 	unsigned int CompileShader(unsigned int type, const char* src);
 	bool ParseShaders(const std::string& glslpath);
 
+	std::string path;
+
 	ShaderSources mSources;
 	unsigned int mProgram;
-	bool mLinked;
+	ShaderStatus mStatus;
 };

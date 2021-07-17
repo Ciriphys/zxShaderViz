@@ -13,7 +13,7 @@ public:
 
 	void Draw();
 	
-	std::shared_ptr<Shader> LoadShaderFromGLSLPath(const std::string& glslpath);
+	std::shared_ptr<Shader> LoadShaderFromGLSLPath(const std::string& glslpath, bool recache = false);
 
 	unsigned int GetFrameBufferColorAttachment() const { return mColorAttachment; }
 
@@ -41,4 +41,6 @@ private:
 	unsigned int mFrameBufferId = 0;
 	unsigned int mColorAttachment = 0;
 	unsigned int mWidth = 0, mHeight = 0;
+
+	friend class Engine;
 };

@@ -13,7 +13,7 @@ Shader::Shader(const std::string& glslpath)
 		if (CreateShader())
 		{
 			std::cout << "Shader successfully created and enabled!\n" << std::endl;
-			mLinked = true;
+			mStatus = ShaderStatus::Linked;
 			return;
 		}
 	}
@@ -23,7 +23,7 @@ Shader::Shader(const std::string& glslpath)
 	}
 
 	std::cout << "Shader couldn't be created.\n" << msg.str() << std::endl;
-	mLinked = false;
+	mStatus = ShaderStatus::Parsed;
 }
 
 std::string Shader::operator[](unsigned int index) const
@@ -146,6 +146,7 @@ bool Shader::CreateShader()
 	}
 
 	std::cout << "Program linking was successful!\n";
+	mStatus = ShaderStatus::Linked;
 
 	glDeleteShader(vertexShader);
 	glDeleteShader(fragmentShader);
@@ -170,6 +171,7 @@ unsigned int Shader::CompileShader(unsigned int type, const char* src)
 
 		// To be replaced when more shaders will be supported.
 		std::cout << (type == GL_VERTEX_SHADER ? "Vertex" : "Fragment") << " shader compilation failed.\ninfoLog:\n" << infoLog << std::endl << std::endl;
+		mStatus = ShaderStatus::Parsed;
 		return (unsigned int)(-1);
 	}
 
@@ -207,6 +209,7 @@ bool Shader::ParseShaders(const std::string& glslpath)
 			}
 		}
 
+		path = glslpath;
 		mSources.vertexSource = shaderSources[(int)ShaderType::Vertex].str();
 		mSources.fragmentSource = shaderSources[(int)ShaderType::Fragment].str();
 

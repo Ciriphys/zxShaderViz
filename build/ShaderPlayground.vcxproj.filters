@@ -882,6 +882,9 @@
     <ClInclude Include="include\Events\WindowEvents.h">
       <Filter>include\Events</Filter>
     </ClInclude>
+    <ClInclude Include="include\FrameBuffer.h">
+      <Filter>include</Filter>
+    </ClInclude>
     <ClInclude Include="include\ImGui_Frame.h">
       <Filter>include</Filter>
     </ClInclude>
@@ -900,10 +903,12 @@
     <ClInclude Include="include\sppch.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="include\FrameBuffer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Engine.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\FrameBuffer.cpp">
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="src\ImGui_Frame.cpp">
@@ -924,9 +929,5 @@
     <ClCompile Include="src\sppch.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="src\FrameBuffer.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="assets\shader\shader.glsl" />
   </ItemGroup>
 </Project>

@@ -27,71 +27,26 @@ class UIFrame
 {
 public:
 	virtual void DrawUI() = 0;
+
+	std::string GetName() const { return mName; }
+
+protected:
+	UIFrame(const std::string& name) : mName(name) {}
+	std::string mName;
 };
 
 class MenuBarFrame : public UIFrame
 {
-    virtual void DrawUI()
-    {
-        static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
+public:
+	MenuBarFrame(const std::string& name) : UIFrame(name) {}
+	virtual void DrawUI() override;
 
-        const ImGuiViewport* viewport = ImGui::GetMainViewport();
-        ImGui::SetNextWindowPos(viewport->WorkPos);
-        ImGui::SetNextWindowSize(viewport->WorkSize);
-        ImGui::SetNextWindowViewport(viewport->ID);
-
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(2.0f, 2.0f));
-
-        ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
-        window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
-        window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
-        
-        ImGui::Begin("MenuBar", nullptr, window_flags);
-        ImGui::PopStyleVar(3);
-
-        ImGuiIO& io = ImGui::GetIO();
-        ImGuiID dockspace_id = ImGui::GetID("MenuBarDockspace");
-        ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
-
-        if (ImGui::BeginMenuBar())
-        {
-            if (ImGui::BeginMenu("File"))
-            {
-                ImGui::MenuItem("New",  "Ctrl+N", nullptr);
-                ImGui::MenuItem("Open", "Ctrl+O", nullptr);
-                ImGui::MenuItem("Save", "Ctrl+S", nullptr);
-
-                ImGui::EndMenu();
-            }
-
-            if (ImGui::BeginMenu("Edit"))
-            {
-                ImGui::MenuItem("Options", nullptr, nullptr);
-                ImGui::MenuItem("Blueprint", nullptr, nullptr);
-                ImGui::MenuItem("Another opt", nullptr, nullptr);
-
-                ImGui::EndMenu();
-            }
-
-            if (ImGui::BeginMenu("?"))
-            {
-                ImGui::MenuItem("About", "Ctrl+H", nullptr);
-
-                ImGui::EndMenu();
-            }
-
-             ImGui::EndMenuBar();
-        }
-
-        ImGui::End();
-    }
 };
 
 class ViewportFrame : public UIFrame
 {
 public: 
+	ViewportFrame(const std::string& name) : UIFrame(name) {}
     void SetFrameBuffer(std::shared_ptr<FrameBuffer> fb) { mFrameBuffer = fb; }
 
     virtual void DrawUI() override;
@@ -99,4 +54,17 @@ public:
 private:
     glm::vec2 mViewportSize = {0, 0};
     std::shared_ptr<FrameBuffer> mFrameBuffer;
+};
+
+class ShaderEditorFrame : public UIFrame
+{
+public:
+	ShaderEditorFrame(const std::string& name) : UIFrame(name) {}
+    virtual void DrawUI() override;
+	
+	std::vector<std::string> GetSources() { return {mVertexSrc, mFragmentSrc}; }
+
+private:
+    std::string mVertexSrc;
+    std::string mFragmentSrc;
 };
