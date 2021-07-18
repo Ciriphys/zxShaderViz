@@ -23,8 +23,8 @@ class Window
 public:
 	Window
 	(
-		uint32_t width = 1280,
-		uint32_t height = 720,
+		uint32_t width = 1366,
+		uint32_t height = 768,
 		std::string title = "Window",
 		RefreshRate rrate = RefreshRate_60hz
 	) 
