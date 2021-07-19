@@ -15,6 +15,14 @@ enum class ShaderType : int
 	Error = -1
 };
 
+enum class ShaderFileType : int
+{
+	GLSL = 0,
+	zxshad = 1,
+
+	Error = -1
+};
+
 enum class ShaderStatus : int
 {
 	Linked = 0,
@@ -22,10 +30,20 @@ enum class ShaderStatus : int
 	Error = 2
 };
 
+static ShaderFileType GetTypeFromExtension(const std::string& ext)
+{
+	if (ext == ".glsl")
+		return ShaderFileType::GLSL;
+	else if (ext == ".zxshad")
+		return ShaderFileType::zxshad;
+	else
+		return ShaderFileType::Error;
+}
+
 class Shader
 {
 public:
-	Shader(const std::string& glslpath);
+	Shader(const std::string& filepath, ShaderFileType type);
 	std::string operator[] (unsigned int index) const;
 	operator unsigned int() const;
 
@@ -59,14 +77,19 @@ public:
 		std::string fragmentSource;
 	};
 
+	ShaderSources GetSources() const { return mSources; }
+
 private:
 	bool CreateShader();
 	unsigned int CompileShader(unsigned int type, const char* src);
-	bool ParseShaders(const std::string& glslpath);
+	bool ParseGLSLShaders(const std::string& glslpath);
+	bool ParseZXSHADShaders(const std::string& filepath);
 
 	std::string path;
 
-	ShaderSources mSources;
 	unsigned int mProgram;
+
+	ShaderFileType mType;
+	ShaderSources mSources;
 	ShaderStatus mStatus;
 };

@@ -7,6 +7,7 @@ workspace "ShaderPlayground"
   ExtLibs = {}
   ExtLibs["Glad"]  = "build/ThirdParty/Glad/include"
   ExtLibs["GLFW"]  = "build/ThirdParty/GLFW/include"
+  ExtLibs["Yaml"]  = "build/ThirdParty/YAML/include"
   ExtLibs["ImGui"] = "build/ThirdParty/ImGui"
 
   IncludeDirectories = {}
@@ -15,6 +16,7 @@ workspace "ShaderPlayground"
   include "build/ThirdParty/Glad"
   include "build/ThirdParty/GLFW"
   include "build/ThirdParty/ImGui"
+  include "build/ThirdParty/YAML"
 
 project "ShaderPlayground"
   location "build"
@@ -38,10 +40,11 @@ project "ShaderPlayground"
      "%{IncludeDirectories.glm}",
      "%{ExtLibs.Glad}", 
      "%{ExtLibs.GLFW}", 
-     "%{ExtLibs.ImGui}" 
+     "%{ExtLibs.ImGui}",
+     "%{ExtLibs.Yaml}"
   }
 
-  links { "Glad", "GLFW", "ImGui", "opengl32.lib" }
+  links { "Glad", "GLFW", "ImGui", "Yaml-cpp", "opengl32.lib" }
 
   pchheader "sppch.h"
   pchsource "build/src/sppch.cpp"

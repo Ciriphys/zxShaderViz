@@ -7,3 +7,6 @@
 [submodule "build/ThirdParty/ImGui"]
 	path = build/ThirdParty/ImGui
 	url = https://www.github.com/ocornut/imgui
+[submodule "build/ThirdParty/YAML"]
+	path = build/ThirdParty/YAML
+	url = https://github.com/jbeder/yaml-cpp

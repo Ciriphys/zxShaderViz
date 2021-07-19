@@ -13,7 +13,7 @@ public:
 
 	void Draw();
 	
-	std::shared_ptr<Shader> LoadShaderFromGLSLPath(const std::string& glslpath, bool recache = false);
+	std::shared_ptr<Shader> LoadShaderFromFile(const std::string& glslpath, bool recache = false);
 
 	unsigned int GetFrameBufferColorAttachment() const { return mColorAttachment; }
 

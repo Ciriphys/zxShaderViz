@@ -53,3 +53,26 @@ private:
 	std::string mVertexSrc;
 	std::string mFragmentSrc;
 };
+
+class DemoPanel : public UIPanel
+{
+public:
+	DemoPanel(const std::string& name) : UIPanel(name) { }
+	virtual void DrawUI() override { ImGui::ShowDemoWindow(); }
+	virtual void OnEvent(Event& e) {}
+
+};
+
+class DirectoryExplorerPanel : public UIPanel
+{
+public:
+	DirectoryExplorerPanel(const std::string& name) : UIPanel(name), mCurrentDirectory(""), mFiles({}) { }
+	virtual void DrawUI() override;
+	virtual void OnEvent(Event& e) {}
+
+private:
+	std::string Trim(const std::string& path);
+	
+	std::filesystem::path mCurrentDirectory;
+	std::vector<std::filesystem::path> mFiles;
+};

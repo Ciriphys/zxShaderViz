@@ -30,7 +30,7 @@ void ViewportPanel::DrawUI()
 			auto font = io.Fonts->Fonts[1];
 			ImGui::PushFont(font);
 
-			std::string text = "The shader couldn't be compiled!\n\t\tCheck your source code!";
+			std::string text = "The shader couldn't be compiled!\nCheck your source code!";
 
 			auto windowWidth = ImGui::GetWindowSize().x;
 			auto windowHeight = ImGui::GetWindowSize().y;
@@ -39,7 +39,7 @@ void ViewportPanel::DrawUI()
 
 			ImGui::SetCursorPosX((windowWidth - textWidth) * 0.5f);
 			ImGui::SetCursorPosY((windowHeight - textHeight) * 0.5f);
-			ImGui::Text(text.c_str());
+			ImGui::TextWrapped(text.c_str());
 
 			ImGui::PopFont();
 		}
@@ -59,7 +59,7 @@ void ViewportPanel::DrawUI()
 
 		ImGui::SetCursorPosX((windowWidth - textWidth) * 0.5f);
 		ImGui::SetCursorPosY((windowHeight - textHeight) * 0.5f);
-		ImGui::Text(text.c_str());
+		ImGui::TextWrapped(text.c_str());
 
 		ImGui::PopFont();
 	}
@@ -69,29 +69,50 @@ void ViewportPanel::DrawUI()
 
 void ShaderEditorPanel::DrawUI()
 {
-	ImGui::Begin("Shader Editor");
+	ImGui::Begin("Vertex Shader");
 	if (auto shader = Renderer::GetRenderer()->GetShader())
 	{
-		if (mVertexSrc == "" && mFragmentSrc == "")
-		{
-			mVertexSrc = shader->operator[](0);
-			mFragmentSrc = shader->operator[](1);
-		}
+		if(mVertexSrc == "")
+		mVertexSrc = shader->GetSources().vertexSource;
+	
+		ImGui::InputTextMultiline("Vertex", (char*)mVertexSrc.c_str(), mVertexSrc.capacity() + 1, ImGui::GetWindowSize(), ImGuiInputTextFlags_CallbackResize, [](ImGuiInputTextCallbackData* data) -> int
+			{
+				if (data->EventFlag == ImGuiInputTextFlags_CallbackResize)
+				{
+					std::string* str = (std::string*)data->UserData;
+					IM_ASSERT(data->Buf == str->c_str());
+					str->resize(data->BufTextLen);
+					data->Buf = (char*)str->c_str();
+				}
 
-		auto& io = ImGui::GetIO();
-		auto sz = io.Fonts->Fonts[0]->FontSize + 5;
-
-		const int shaderCount = 2;
-		auto windowWidth = ImGui::GetWindowSize().x;
-		auto windowHeight = ImGui::GetWindowSize().y / shaderCount - 2 * sz;
-
-		ImGui::Text("Vertex Source");
-		ImGui::InputTextMultiline("Vertex Source", mVertexSrc.data(), mVertexSrc.size(), ImVec2{ windowWidth - 15, windowHeight });
-		ImGui::Separator();
-		ImGui::Text("Fragment Source");
-		ImGui::InputTextMultiline("Fragment Source", mFragmentSrc.data(), mFragmentSrc.size(), ImVec2{ windowWidth - 15, windowHeight });
+				return 0;
+			},
+			reinterpret_cast<void*>(&mVertexSrc)
+		);
 	}
+	ImGui::End();
 
+	ImGui::Begin("Fragment Shader");
+	if (auto shader = Renderer::GetRenderer()->GetShader())
+	{
+		if (mFragmentSrc == "")
+			mFragmentSrc = shader->GetSources().fragmentSource;
+
+		ImGui::InputTextMultiline("Fragment", (char*)mFragmentSrc.c_str(), mFragmentSrc.capacity() + 1, ImGui::GetWindowSize(), ImGuiInputTextFlags_CallbackResize, [](ImGuiInputTextCallbackData* data) -> int
+			{
+				if (data->EventFlag == ImGuiInputTextFlags_CallbackResize)
+				{
+					std::string* str = (std::string*)data->UserData;
+					IM_ASSERT(data->Buf == str->c_str());
+					str->resize(data->BufTextLen);
+					data->Buf = (char*)str->c_str();
+				}
+
+				return 0;
+			},
+			reinterpret_cast<void*>(&mFragmentSrc)
+		);
+	}
 	ImGui::End();
 }
 
@@ -240,3 +261,55 @@ void MenuBarPanel::OnEvent(Event& e)
 		return true;
 		});
 }
+
+void DirectoryExplorerPanel::DrawUI()
+{
+	ImGui::Begin("Directory Explorer");
+	if (Renderer::GetRenderer()->GetShader())
+	{
+		mCurrentDirectory = "";
+		mFiles = {};
+
+		std::string shaderPath = Renderer::GetRenderer()->GetShader()->GetFilepath();
+		unsigned int idx = shaderPath.find_last_of("\\");
+
+		for (int i = 0; i < idx; i++)
+			mCurrentDirectory += shaderPath[i];
+
+		std::filesystem::path path(mCurrentDirectory);
+		for (auto& content : std::filesystem::directory_iterator(path))
+		{
+			if (content.is_directory())
+			{
+				if (ImGui::Button(Trim(content.path().string()).c_str()))
+				{
+					mCurrentDirectory = content;
+				}
+			}
+			else
+			{
+				mFiles.push_back(content.path().string());
+			}
+		}
+
+		ImGui::Separator();
+
+		for (auto& file : mFiles)
+			if (ImGui::Button(Trim(file.string()).c_str()))
+				Engine::GetEngineInstance().OpenFile(file.string());
+
+	}
+
+	ImGui::End();
+}
+
+std::string DirectoryExplorerPanel::Trim(const std::string& path)
+{
+	std::string result = "";
+
+	auto idx = path.find_last_of("\\") + 1;
+	for (idx; idx < path.size(); idx++)
+		result += path[idx];
+
+	return result;
+};

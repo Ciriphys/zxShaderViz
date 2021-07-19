@@ -3,9 +3,22 @@
 #include <Utils/Shader.h>
 #include <glad/glad.h>
 
-Shader::Shader(const std::string& glslpath)
+#include "yaml-cpp/yaml.h"
+
+Shader::Shader(const std::string& filepath, ShaderFileType type)
 {
-	bool parseResult = ParseShaders(glslpath);
+	bool parseResult = false;
+	
+	switch (type)
+	{
+	case ShaderFileType::GLSL:
+		parseResult = ParseGLSLShaders(filepath);
+		break;
+	case ShaderFileType::zxshad:
+		parseResult = ParseZXSHADShaders(filepath);
+		break;
+	}
+
 	std::stringstream msg;
 
 	if(parseResult)
@@ -19,7 +32,7 @@ Shader::Shader(const std::string& glslpath)
 	}
 	else
 	{
-		msg << "\nMaybe check path? {" << glslpath << "}";
+		msg << "\nMaybe check path? {" << filepath << "}";
 	}
 
 	std::cout << "Shader couldn't be created.\n" << msg.str() << std::endl;
@@ -180,7 +193,7 @@ unsigned int Shader::CompileShader(unsigned int type, const char* src)
 	return shader;
 }
 
-bool Shader::ParseShaders(const std::string& glslpath)
+bool Shader::ParseGLSLShaders(const std::string& glslpath)
 {
 	std::ifstream glslFile(glslpath);
 
@@ -213,8 +226,23 @@ bool Shader::ParseShaders(const std::string& glslpath)
 		mSources.vertexSource = shaderSources[(int)ShaderType::Vertex].str();
 		mSources.fragmentSource = shaderSources[(int)ShaderType::Fragment].str();
 
+		glslFile.close();
 		return true;
 	}
 
 	return false;
+}
+
+bool Shader::ParseZXSHADShaders(const std::string& filepath)
+{
+	std::fstream file(filepath);
+	std::stringstream buffer;
+	buffer << file.rdbuf();
+
+	YAML::Node nodes = YAML::Load(buffer.str());
+	mSources.vertexSource = nodes["Vertex Shader"].as<std::string>();
+	mSources.fragmentSource = nodes["Fragment Shader"].as<std::string>();
+
+	path = filepath;
+	return true;
 }

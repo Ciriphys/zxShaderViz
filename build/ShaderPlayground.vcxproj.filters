@@ -888,8 +888,20 @@
     <ClInclude Include="include\ImGuiPanel.h">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="include\Panels.h">
+      <Filter>include</Filter>
+    </ClInclude>
     <ClInclude Include="include\Renderer.h">
       <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Utils\FileDialogs.h">
+      <Filter>include\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Utils\Input.h">
+      <Filter>include\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Utils\Keycode.h">
+      <Filter>include\Utils</Filter>
     </ClInclude>
     <ClInclude Include="include\Utils\Shader.h">
       <Filter>include\Utils</Filter>
@@ -903,10 +915,6 @@
     <ClInclude Include="include\sppch.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="include\Utils\FileDialogs.h" />
-    <ClInclude Include="include\Panels.h" />
-    <ClInclude Include="include\Utils\Input.h" />
-    <ClInclude Include="include\Utils\Keycode.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Engine.cpp">
@@ -918,8 +926,17 @@
     <ClCompile Include="src\ImGuiPanel.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="src\Panels.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
     <ClCompile Include="src\Renderer.cpp">
       <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Utils\FileDialogs.cpp">
+      <Filter>src\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Utils\Input.cpp">
+      <Filter>src\Utils</Filter>
     </ClCompile>
     <ClCompile Include="src\Utils\Shader.cpp">
       <Filter>src\Utils</Filter>
@@ -933,8 +950,5 @@
     <ClCompile Include="src\sppch.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="src\Utils\FileDialogs.cpp" />
-    <ClCompile Include="src\Panel.cpp" />
-    <ClCompile Include="src\Utils\Input.cpp" />
   </ItemGroup>
 </Project>

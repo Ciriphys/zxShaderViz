@@ -5,8 +5,8 @@
 
 FrameBuffer::FrameBuffer()
 {
-	mWidth = 1366;
-	mHeight = 728;
+	mWidth = 1600;
+	mHeight = 900;
 	Invalidate();
 }
 

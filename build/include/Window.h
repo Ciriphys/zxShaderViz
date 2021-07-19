@@ -23,9 +23,9 @@ class Window
 public:
 	Window
 	(
-		uint32_t width = 1366,
-		uint32_t height = 768,
-		std::string title = "Window",
+		uint32_t width = 1600,
+		uint32_t height = 900,
+		std::string title = "ZeXo Shading",
 		RefreshRate rrate = RefreshRate_60hz
 	) 
 	{

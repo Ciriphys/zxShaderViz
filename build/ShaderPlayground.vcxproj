@@ -80,7 +80,7 @@
       <PrecompiledHeaderFile>sppch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>SP_WIN;SP_DEBUG;DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;include;ThirdParty\glm;ThirdParty\Glad\include;ThirdParty\GLFW\include;ThirdParty\ImGui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;include;ThirdParty\glm;ThirdParty\Glad\include;ThirdParty\GLFW\include;ThirdParty\ImGui;ThirdParty\YAML\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -98,7 +98,7 @@
       <PrecompiledHeaderFile>sppch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>SP_WIN;SP_RELEASE;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;include;ThirdParty\glm;ThirdParty\Glad\include;ThirdParty\GLFW\include;ThirdParty\ImGui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;include;ThirdParty\glm;ThirdParty\Glad\include;ThirdParty\GLFW\include;ThirdParty\ImGui;ThirdParty\YAML\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -121,7 +121,7 @@
       <PrecompiledHeaderFile>sppch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>SP_WIN;SP_DIST;SP_HIDE_LOGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;include;ThirdParty\glm;ThirdParty\Glad\include;ThirdParty\GLFW\include;ThirdParty\ImGui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;include;ThirdParty\glm;ThirdParty\Glad\include;ThirdParty\GLFW\include;ThirdParty\ImGui;ThirdParty\YAML\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -139,10 +139,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="include\Panels.h" />
-    <ClInclude Include="include\Utils\FileDialogs.h" />
-    <ClInclude Include="include\Utils\Input.h" />
-    <ClInclude Include="include\Utils\Keycode.h" />
     <ClInclude Include="ThirdParty\glm\glm\common.hpp" />
     <ClInclude Include="ThirdParty\glm\glm\detail\_features.hpp" />
     <ClInclude Include="ThirdParty\glm\glm\detail\_fixes.hpp" />
@@ -426,20 +422,24 @@
     <ClInclude Include="include\Events\WindowEvents.h" />
     <ClInclude Include="include\FrameBuffer.h" />
     <ClInclude Include="include\ImGuiPanel.h" />
+    <ClInclude Include="include\Panels.h" />
     <ClInclude Include="include\Renderer.h" />
+    <ClInclude Include="include\Utils\FileDialogs.h" />
+    <ClInclude Include="include\Utils\Input.h" />
+    <ClInclude Include="include\Utils\Keycode.h" />
     <ClInclude Include="include\Utils\Shader.h" />
     <ClInclude Include="include\Utils\TimeStep.h" />
     <ClInclude Include="include\Window.h" />
     <ClInclude Include="include\sppch.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\Utils\Input.cpp" />
     <ClCompile Include="src\Engine.cpp" />
     <ClCompile Include="src\FrameBuffer.cpp" />
     <ClCompile Include="src\ImGuiPanel.cpp" />
-    <ClCompile Include="src\Panel.cpp" />
+    <ClCompile Include="src\Panels.cpp" />
     <ClCompile Include="src\Renderer.cpp" />
     <ClCompile Include="src\Utils\FileDialogs.cpp" />
+    <ClCompile Include="src\Utils\Input.cpp" />
     <ClCompile Include="src\Utils\Shader.cpp" />
     <ClCompile Include="src\Window.cpp" />
     <ClCompile Include="src\main.cpp" />
@@ -456,6 +456,9 @@
     </ProjectReference>
     <ProjectReference Include="ThirdParty\ImGui\ImGui.vcxproj">
       <Project>{C0FF640D-2C14-8DBE-F595-301E616989EF}</Project>
+    </ProjectReference>
+    <ProjectReference Include="ThirdParty\YAML\Yaml-cpp.vcxproj">
+      <Project>{685566CF-5422-C1DA-7D3B-AF826967F668}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -9,6 +9,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ImGui", "build\ThirdParty\I
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ShaderPlayground", "build\ShaderPlayground.vcxproj", "{C1FF6377-ADF8-82C9-D62A-684EC28262D5}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Yaml-cpp", "build\ThirdParty\YAML\Yaml-cpp.vcxproj", "{685566CF-5422-C1DA-7D3B-AF826967F668}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -40,6 +42,12 @@ Global
 		{C1FF6377-ADF8-82C9-D62A-684EC28262D5}.Distribution|x64.Build.0 = Distribution|x64
 		{C1FF6377-ADF8-82C9-D62A-684EC28262D5}.Release|x64.ActiveCfg = Release|x64
 		{C1FF6377-ADF8-82C9-D62A-684EC28262D5}.Release|x64.Build.0 = Release|x64
+		{685566CF-5422-C1DA-7D3B-AF826967F668}.Debug|x64.ActiveCfg = Debug|x64
+		{685566CF-5422-C1DA-7D3B-AF826967F668}.Debug|x64.Build.0 = Debug|x64
+		{685566CF-5422-C1DA-7D3B-AF826967F668}.Distribution|x64.ActiveCfg = Distribution|x64
+		{685566CF-5422-C1DA-7D3B-AF826967F668}.Distribution|x64.Build.0 = Distribution|x64
+		{685566CF-5422-C1DA-7D3B-AF826967F668}.Release|x64.ActiveCfg = Release|x64
+		{685566CF-5422-C1DA-7D3B-AF826967F668}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

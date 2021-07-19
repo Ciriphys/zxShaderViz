@@ -36,6 +36,9 @@ private:
 	bool OnWindowResized(WindowResized&);
 	bool OnMouseMoved(MouseMoved&);
 
+	void SaveGLSL	( std::fstream& file, const std::vector<std::string>& sources );
+	void SaveZXSHAD ( std::fstream& file, const std::vector<std::string>& sources );
+
 	std::shared_ptr<Window> mWindow;
 	std::shared_ptr<Renderer> mRenderer;
 	std::unique_ptr<ImGuiPanel> mImGuiFrame;

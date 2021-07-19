@@ -4,10 +4,10 @@
 
 namespace Input
 {
-	static bool GetKeyPress					(Key key);
-	static bool GetKeyRelease				(Key key);
-	static bool GetKey						(Key key);
-	 
-	static bool GetMouseButtonPress			(Key button);
-	static bool GetMouseButtonRelease		(Key button);
+	bool GetKeyPress				(Key key);
+	bool GetKeyRelease				(Key key);
+	bool GetKey						(Key key);
+	
+	bool GetMouseButtonPress		(Key button);
+	bool GetMouseButtonRelease		(Key button);
 }
