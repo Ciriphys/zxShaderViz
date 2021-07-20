@@ -1,9 +1,12 @@
 #include "sppch.h"
 
+#include "Engine.h"
 #include <Renderer.h>
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+
+#include "Panels.h"
 
 std::shared_ptr<Renderer> Renderer::s_Instance = nullptr;
 
@@ -101,7 +104,9 @@ std::shared_ptr<Shader> Renderer::LoadShaderFromFile(const std::string& filepath
 	if (it != mShaderCache.end() && !recache)
 	{
 		mActiveShader = it->second;
-		std::cout << "Loading cached from path: " << it->first << "\n";
+		std::stringstream msg;
+		msg << "Loading cached from path: " << it->first << "\n";
+		reinterpret_cast<LogPanel*>(Engine::GetEngineInstance().GetUIFrames()["Log Panel"])->PushMessage(msg.str());
 		return mActiveShader;
 	}
 
@@ -114,11 +119,15 @@ std::shared_ptr<Shader> Renderer::LoadShaderFromFile(const std::string& filepath
 
 	if (type == ShaderFileType::Error)
 	{
-		std::cout << "File {" << GetSubstring(filepath, filepath.find_last_of("\\"), filepath.length() - 1) << "} is not a valid file!\n";
+		std::stringstream msg;
+		msg << "File {" << GetSubstring(filepath, filepath.find_last_of("\\"), filepath.length() - 1) << "} is not a valid file!\n";
+		reinterpret_cast<LogPanel*>(Engine::GetEngineInstance().GetUIFrames()["Log Panel"])->PushMessage(msg.str());
 		return nullptr;
 	}
 
-	std::cout << "\nLoading from path: " << filepath << "\n";
+	std::stringstream msg;
+	msg << "Loading from path: " << filepath << "\n\n";
+	reinterpret_cast<LogPanel*>(Engine::GetEngineInstance().GetUIFrames()["Log Panel"])->PushMessage(msg.str());
 	mActiveShader = std::make_shared<Shader>(filepath, type);
 	mShaderCache[filepath] = mActiveShader;
 	return mActiveShader;

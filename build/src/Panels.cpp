@@ -7,6 +7,9 @@
 #include "Utils/Input.h"
 #include "Utils/FileDialogs.h"
 
+ //////////////////////////
+////  VIEWPORT PANEL  ////
+/////////////////////////
 void ViewportPanel::DrawUI()
 {
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, { 0, 0 });
@@ -23,6 +26,12 @@ void ViewportPanel::DrawUI()
 			}
 			uint32_t textureID = mFrameBuffer->GetColorAttachment();
 			ImGui::Image(reinterpret_cast<void*>(textureID), ImVec2{ mViewportSize.x, mViewportSize.y }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
+
+			if (ImGui::IsWindowHovered())
+			{
+				ImVec2 mPos = ImGui::GetMousePos();
+				mMousePos = { mPos.x, mPos.y };
+			}
 		}
 		else
 		{
@@ -67,15 +76,19 @@ void ViewportPanel::DrawUI()
 	ImGui::PopStyleVar();
 }
 
+  ///////////////////////////////
+ ////  SHADER EDITOR PANEL  ////
+///////////////////////////////
 void ShaderEditorPanel::DrawUI()
 {
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, { 0, 0 });
 	ImGui::Begin("Vertex Shader");
 	if (auto shader = Renderer::GetRenderer()->GetShader())
 	{
 		if(mVertexSrc == "")
 		mVertexSrc = shader->GetSources().vertexSource;
 	
-		ImGui::InputTextMultiline("Vertex", (char*)mVertexSrc.c_str(), mVertexSrc.capacity() + 1, ImGui::GetWindowSize(), ImGuiInputTextFlags_CallbackResize, [](ImGuiInputTextCallbackData* data) -> int
+		ImGui::InputTextMultiline("Vertex", (char*)mVertexSrc.c_str(), mVertexSrc.capacity() + 1, ImGui::GetWindowSize(), ImGuiInputTextFlags_AllowTabInput | ImGuiInputTextFlags_CallbackResize, [](ImGuiInputTextCallbackData* data) -> int
 			{
 				if (data->EventFlag == ImGuiInputTextFlags_CallbackResize)
 				{
@@ -98,7 +111,7 @@ void ShaderEditorPanel::DrawUI()
 		if (mFragmentSrc == "")
 			mFragmentSrc = shader->GetSources().fragmentSource;
 
-		ImGui::InputTextMultiline("Fragment", (char*)mFragmentSrc.c_str(), mFragmentSrc.capacity() + 1, ImGui::GetWindowSize(), ImGuiInputTextFlags_CallbackResize, [](ImGuiInputTextCallbackData* data) -> int
+		ImGui::InputTextMultiline("Fragment", (char*)mFragmentSrc.c_str(), mFragmentSrc.capacity() + 1, ImGui::GetWindowSize(), ImGuiInputTextFlags_AllowTabInput | ImGuiInputTextFlags_CallbackResize, [](ImGuiInputTextCallbackData* data) -> int
 			{
 				if (data->EventFlag == ImGuiInputTextFlags_CallbackResize)
 				{
@@ -114,8 +127,12 @@ void ShaderEditorPanel::DrawUI()
 		);
 	}
 	ImGui::End();
+	ImGui::PopStyleVar();
 }
 
+  //////////////////////////
+ ////  MENU BAR PANEL  ////
+//////////////////////////
 void MenuBarPanel::DrawUI()
 {
 	static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
@@ -262,6 +279,9 @@ void MenuBarPanel::OnEvent(Event& e)
 		});
 }
 
+  ////////////////////////////////////
+ ////  DIRECTORY EXPLORER PANEL  ////
+////////////////////////////////////
 void DirectoryExplorerPanel::DrawUI()
 {
 	ImGui::Begin("Directory Explorer");
@@ -281,7 +301,7 @@ void DirectoryExplorerPanel::DrawUI()
 		{
 			if (content.is_directory())
 			{
-				if (ImGui::Button(Trim(content.path().string()).c_str()))
+				if (ImGui::Selectable(Trim(content.path().string()).c_str()))
 				{
 					mCurrentDirectory = content;
 				}
@@ -295,9 +315,8 @@ void DirectoryExplorerPanel::DrawUI()
 		ImGui::Separator();
 
 		for (auto& file : mFiles)
-			if (ImGui::Button(Trim(file.string()).c_str()))
+			if (ImGui::Selectable(Trim(file.string()).c_str()))
 				Engine::GetEngineInstance().OpenFile(file.string());
-
 	}
 
 	ImGui::End();
@@ -310,6 +329,39 @@ std::string DirectoryExplorerPanel::Trim(const std::string& path)
 	auto idx = path.find_last_of("\\") + 1;
 	for (idx; idx < path.size(); idx++)
 		result += path[idx];
-
+	
 	return result;
 };
+
+  /////////////////////
+ ////  LOG PANEL  ////
+/////////////////////
+void LogPanel::DrawUI()
+{
+	std::stringstream msgData;
+	for (auto it = mLogMsgs.rbegin(); it != mLogMsgs.rend(); ++it)
+		msgData << *it;
+
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, { 5.0f, 5.0f });
+	ImGui::Begin("Output Logger", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
+
+	if (ImGui::Button("Clear")) mLogMsgs.clear();
+	ImGui::SameLine();
+	if (ImGui::Button("Copy to Clipboard"))
+	{
+		std::stringstream clipboard;
+		for (auto& msg : mLogMsgs)
+			clipboard << msg;
+		
+		ImGui::SetClipboardText(clipboard.str().c_str());
+	}
+	ImGui::InputTextMultiline("Logger", (char*)msgData.str().c_str(), msgData.str().size(), ImGui::GetContentRegionAvail(), ImGuiInputTextFlags_ReadOnly);
+
+	ImGui::End();
+	ImGui::PopStyleVar();
+}
+
+void LogPanel::PushMessage(const std::string& msg)
+{
+	mLogMsgs.push_back(msg);
+}

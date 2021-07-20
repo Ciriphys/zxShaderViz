@@ -25,11 +25,13 @@ Engine::Engine()
 	auto menuBar = new MenuBarPanel("Menu Bar");
 	auto viewport = new ViewportPanel("Viewport");
 	auto dirPanel = new DirectoryExplorerPanel("Directory Explorer Panel");
+	auto logPanel = new LogPanel("Log Panel");
 
 	mUIFrames[menuBar->GetName()] = menuBar;
 	mUIFrames[demoPan->GetName()] = demoPan;
 	mUIFrames[dirPanel->GetName()] = dirPanel;
 	mUIFrames[viewport->GetName()] = viewport;
+	mUIFrames[logPanel->GetName()] = logPanel;
 }
 
 void Engine::RenderLoop()
@@ -48,14 +50,13 @@ void Engine::RenderLoop()
 
 		mImGuiFrame->Begin();
 		for (auto& [k, uiframe] : mUIFrames)
-
 			uiframe->DrawUI();
 		mImGuiFrame->End();
 
 		if (!mRenderer->mActiveShader) continue;
 
 		mRenderer->mActiveShader->SetUniform("u_Time", ts.GetExecutionTimef());	
-		mRenderer->mActiveShader->SetUniform("u_MousePos", mousePos);
+		mRenderer->mActiveShader->SetUniform("u_MousePos", reinterpret_cast<ViewportPanel*>(mUIFrames["Viewport"])->GetMousePos());
 		mRenderer->mActiveShader->SetUniform("u_Resolution", { mWindow->GetWidth(), mWindow->GetHeight() });
 		mRenderer->Draw();
 	}
@@ -92,16 +93,20 @@ void Engine::SaveFile(const std::vector<std::string>& sources, const std::string
 	ShaderFileType type = GetTypeFromExtension(extension);
 	std::fstream file(path, std::fstream::in | std::fstream::out | std::fstream::trunc);
 
+	if (!file)
+	{
+		std::stringstream msg;
+		msg << "Could not open file!\n\n";
+
+		reinterpret_cast<LogPanel*>(Engine::GetEngineInstance().GetUIFrames()["Log Panel"])->PushMessage(msg.str());
+
+		return;
+	}
+
 	switch (type)
 	{
 	case ShaderFileType::GLSL:
-		if (!file)
-		{
-			std::cout << "Could not open file!\n\n";
-			return;
-		}
-
-		std::cout << "@vertex\n" << sources[0].c_str() << "\n@fragment\n" << sources[1].c_str() << "\n";
+		//std::cout << "@vertex\n" << sources[0].c_str() << "\n@fragment\n" << sources[1].c_str() << "\n";
 		file << "@vertex\n" << sources[0].c_str() << "\n@fragment\n" << sources[1].c_str() << "\n";
 		break;
 	case ShaderFileType::zxshad:
@@ -112,7 +117,7 @@ void Engine::SaveFile(const std::vector<std::string>& sources, const std::string
 		emitter << YAML::Key << "Fragment Shader";
 		emitter << YAML::Value << sources[1];
 
-		std::cout << emitter.c_str();
+		//std::cout << emitter.c_str();
 		file << emitter.c_str();
 		break;
 	}
@@ -138,7 +143,6 @@ void Engine::OnEvent(Event& e)
 	dispatcher.Emit<WindowResized>(BIND_FUNCTION(&Engine::OnWindowResized, this));
 	dispatcher.Emit<WindowClosed>(BIND_FUNCTION(&Engine::OnWindowClosed, this));
 	dispatcher.Emit<FilesDropped>(BIND_FUNCTION(&Engine::OnFilesDropped, this));
-	dispatcher.Emit<MouseMoved>(BIND_FUNCTION(&Engine::OnMouseMoved, this));
 
 	if(!e.IsHandled())
 	{
@@ -165,23 +169,4 @@ bool Engine::OnWindowResized(WindowResized& e)
 {
 	mMinimized = (e.GetWidth() == 0 && e.GetHeigth() == 0);
 	return true;
-}
-
-bool Engine::OnMouseMoved(MouseMoved& e)
-{
-	//if(reinterpret_cast<ViewportPanel*>(mUIFrames["Viewport"])->IsHovered())
-	mousePos = { e.GetHorizontalPosition(), e.GetVerticalPosition() };
-	return !true;
-}
-
-void Engine::SaveGLSL(std::fstream& file, const std::vector<std::string>& sources)
-{
-	
-	return;
-}
-
-void Engine::SaveZXSHAD(std::fstream& file, const std::vector<std::string>& sources)
-{
-
-	return;
 }

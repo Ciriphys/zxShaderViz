@@ -3,12 +3,16 @@
 #include <Utils/Shader.h>
 #include <glad/glad.h>
 
+#include "Engine.h"
+#include "Panels.h"
 #include "yaml-cpp/yaml.h"
 
 Shader::Shader(const std::string& filepath, ShaderFileType type)
 {
 	bool parseResult = false;
-	
+	mType = type;
+	mProgram = 0;
+
 	switch (type)
 	{
 	case ShaderFileType::GLSL:
@@ -25,7 +29,9 @@ Shader::Shader(const std::string& filepath, ShaderFileType type)
 	{
 		if (CreateShader())
 		{
-			std::cout << "Shader successfully created and enabled!\n" << std::endl;
+			msg << "Shader successfully created and enabled!" << std::endl;
+			reinterpret_cast<LogPanel*>(Engine::GetEngineInstance().GetUIFrames()["Log Panel"])->PushMessage(msg.str());
+
 			mStatus = ShaderStatus::Linked;
 			return;
 		}
@@ -35,7 +41,8 @@ Shader::Shader(const std::string& filepath, ShaderFileType type)
 		msg << "\nMaybe check path? {" << filepath << "}";
 	}
 
-	std::cout << "Shader couldn't be created.\n" << msg.str() << std::endl;
+	msg << "\n";
+	reinterpret_cast<LogPanel*>(Engine::GetEngineInstance().GetUIFrames()["Log Panel"])->PushMessage("Shader couldn't be created." + msg.str());
 	mStatus = ShaderStatus::Parsed;
 }
 
@@ -182,14 +189,34 @@ unsigned int Shader::CompileShader(unsigned int type, const char* src)
 		char infoLog[1024];
 		glGetShaderInfoLog(shader, sizeof(infoLog), 0, infoLog);
 
+		std::string shad = (type == GL_VERTEX_SHADER ? "Vertex" : "Fragment");
 		// To be replaced when more shaders will be supported.
-		std::cout << (type == GL_VERTEX_SHADER ? "Vertex" : "Fragment") << " shader compilation failed.\ninfoLog:\n" << infoLog << std::endl << std::endl;
+		std::cout << shad << " shader compilation failed.\ninfoLog:\n" << infoLog << std::endl << std::endl;
+
+		std::stringstream msg;
+		std::string logline = "";
+		for (int i = 0; i < sizeof(infoLog); i++)
+		{
+			if (infoLog[i] != '\n')
+				logline += infoLog[i];
+			else
+			{
+				msg << "[" << shad << "] Line: " << logline << std::endl;
+				logline = "";
+			}
+		}
+
+		reinterpret_cast<LogPanel*>(Engine::GetEngineInstance().GetUIFrames()["Log Panel"])->PushMessage(msg.str());
+
 		mStatus = ShaderStatus::Parsed;
 		return (unsigned int)(-1);
 	}
 
 	// To be replaced when more shaders will be supported.
-	std::cout << (type == GL_VERTEX_SHADER ? "Vertex" : "Fragment") << " shader compilation was successful!\n";
+	std::stringstream msg;
+	msg << (type == GL_VERTEX_SHADER ? "Vertex" : "Fragment") << " shader compilation was successful!\n";
+	reinterpret_cast<LogPanel*>(Engine::GetEngineInstance().GetUIFrames()["Log Panel"])->PushMessage(msg.str());
+
 	return shader;
 }
 
@@ -238,10 +265,19 @@ bool Shader::ParseZXSHADShaders(const std::string& filepath)
 	std::fstream file(filepath);
 	std::stringstream buffer;
 	buffer << file.rdbuf();
+	file.close();
 
-	YAML::Node nodes = YAML::Load(buffer.str());
-	mSources.vertexSource = nodes["Vertex Shader"].as<std::string>();
-	mSources.fragmentSource = nodes["Fragment Shader"].as<std::string>();
+	if (buffer.str() != "")
+	{
+		YAML::Node nodes = YAML::Load(buffer.str());
+		mSources.vertexSource = nodes["Vertex Shader"].as<std::string>();
+		mSources.fragmentSource = nodes["Fragment Shader"].as<std::string>();
+	}
+	else
+	{
+		mSources.vertexSource   = "";
+		mSources.fragmentSource = "";
+	}
 
 	path = filepath;
 	return true;

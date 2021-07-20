@@ -13,6 +13,9 @@ public:
 
 	std::string GetName() const { return mName; }
 
+	template<typename T>
+	const T* as() const { return reinterpret_cast<T*>(this); }
+
 protected:
 	UIPanel(const std::string& name) : mName(name) {}
 	std::string mName;
@@ -32,11 +35,14 @@ public:
 	ViewportPanel(const std::string& name) : UIPanel(name) {}
 	void SetFrameBuffer(std::shared_ptr<FrameBuffer> fb) { mFrameBuffer = fb; }
 
+	glm::vec2 GetMousePos() const { return mMousePos; }
+
 	virtual void DrawUI() override;
 	virtual void OnEvent(Event& e) {}
 
 private:
 	glm::vec2 mViewportSize = { 0, 0 };
+	glm::vec2 mMousePos = { 0,  0 };
 	std::shared_ptr<FrameBuffer> mFrameBuffer;
 };
 
@@ -61,6 +67,19 @@ public:
 	virtual void DrawUI() override { ImGui::ShowDemoWindow(); }
 	virtual void OnEvent(Event& e) {}
 
+};
+
+class LogPanel : public UIPanel
+{
+public: 
+	LogPanel(const std::string& name) : UIPanel(name), mLogMsgs({}) { }
+	virtual void DrawUI() override;
+	virtual void OnEvent(Event& e) {}
+
+	void PushMessage(const std::string& msg);
+
+private:
+	std::vector<std::string> mLogMsgs;
 };
 
 class DirectoryExplorerPanel : public UIPanel
