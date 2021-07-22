@@ -1,8 +1,10 @@
 #include "sppch.h"
 
 #include "imgui.h"
-#include "Panels.h"
+#include "imgui_internal.h"
+
 #include "Engine.h"
+#include "Panels.h"
 
 #include "Utils/Input.h"
 #include "Utils/FileDialogs.h"
@@ -13,7 +15,7 @@
 void ViewportPanel::DrawUI()
 {
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, { 0, 0 });
-	ImGui::Begin("Viewport");
+	ImGui::Begin("Viewport", &mActive, windowFlags);
 	if (auto shader = Renderer::GetRenderer()->GetShader())
 	{
 		if (shader->IsLinked())
@@ -82,36 +84,24 @@ void ViewportPanel::DrawUI()
 void ShaderEditorPanel::DrawUI()
 {
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, { 0, 0 });
-	ImGui::Begin("Vertex Shader");
-	if (auto shader = Renderer::GetRenderer()->GetShader())
-	{
-		if(mVertexSrc == "")
-		mVertexSrc = shader->GetSources().vertexSource;
+	ImGui::PushStyleVar(ImGuiStyleVar_TabRounding, 0.0f);
 	
-		ImGui::InputTextMultiline("Vertex", (char*)mVertexSrc.c_str(), mVertexSrc.capacity() + 1, ImGui::GetWindowSize(), ImGuiInputTextFlags_AllowTabInput | ImGuiInputTextFlags_CallbackResize, [](ImGuiInputTextCallbackData* data) -> int
-			{
-				if (data->EventFlag == ImGuiInputTextFlags_CallbackResize)
-				{
-					std::string* str = (std::string*)data->UserData;
-					IM_ASSERT(data->Buf == str->c_str());
-					str->resize(data->BufTextLen);
-					data->Buf = (char*)str->c_str();
-				}
+	auto& io = ImGui::GetIO();
+	auto font = io.Fonts->Fonts[2];
+	ImGui::PushFont(font);
 
-				return 0;
-			},
-			reinterpret_cast<void*>(&mVertexSrc)
-		);
-	}
-	ImGui::End();
-
-	ImGui::Begin("Fragment Shader");
+	ImGui::Begin("Shader Editor", &mActive);
 	if (auto shader = Renderer::GetRenderer()->GetShader())
 	{
 		if (mFragmentSrc == "")
-			mFragmentSrc = shader->GetSources().fragmentSource;
+			mFragmentSrc = shader->GetFragmentSource();
 
-		ImGui::InputTextMultiline("Fragment", (char*)mFragmentSrc.c_str(), mFragmentSrc.capacity() + 1, ImGui::GetWindowSize(), ImGuiInputTextFlags_AllowTabInput | ImGuiInputTextFlags_CallbackResize, [](ImGuiInputTextCallbackData* data) -> int
+		ImGui::InputTextMultiline("Fragment",
+			(char*)mFragmentSrc.c_str(),
+			mFragmentSrc.capacity() + 1,
+			ImGui::GetWindowSize(), 
+			ImGuiInputTextFlags_AllowTabInput | ImGuiInputTextFlags_CallbackResize, 
+			[](ImGuiInputTextCallbackData* data) -> int
 			{
 				if (data->EventFlag == ImGuiInputTextFlags_CallbackResize)
 				{
@@ -127,7 +117,9 @@ void ShaderEditorPanel::DrawUI()
 		);
 	}
 	ImGui::End();
-	ImGui::PopStyleVar();
+
+	ImGui::PopFont();
+	ImGui::PopStyleVar(2);
 }
 
   //////////////////////////
@@ -135,7 +127,7 @@ void ShaderEditorPanel::DrawUI()
 //////////////////////////
 void MenuBarPanel::DrawUI()
 {
-	static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
+	ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_NoCloseButton;
 
 	const ImGuiViewport* viewport = ImGui::GetMainViewport();
 	ImGui::SetNextWindowPos(viewport->WorkPos);
@@ -172,8 +164,8 @@ void MenuBarPanel::DrawUI()
 			{
 				if (Renderer::GetRenderer()->GetShader())
 				{
-					auto sources = reinterpret_cast<ShaderEditorPanel*>(Engine::GetEngineInstance().GetUIFrames()["Shader Editor"])->GetSources();
-					Engine::GetEngineInstance().SaveFile(sources);
+					auto fragSource = reinterpret_cast<ShaderEditorPanel*>(Engine::GetEngineInstance().GetUIFrames()["Shader Editor"])->GetFragSource();
+					Engine::GetEngineInstance().SaveFile(fragSource);
 				}
 			}
 
@@ -181,8 +173,8 @@ void MenuBarPanel::DrawUI()
 			{
 				if (Renderer::GetRenderer()->GetShader())
 				{
-					auto sources = reinterpret_cast<ShaderEditorPanel*>(Engine::GetEngineInstance().GetUIFrames()["Shader Editor"])->GetSources();
-					Engine::GetEngineInstance().SaveFile(sources, FileDialogs::SaveFileAs(""));
+					auto fragSource = reinterpret_cast<ShaderEditorPanel*>(Engine::GetEngineInstance().GetUIFrames()["Shader Editor"])->GetFragSource();
+					Engine::GetEngineInstance().SaveFile(fragSource, FileDialogs::SaveFileAs(""));
 				}
 			}
 
@@ -203,9 +195,49 @@ void MenuBarPanel::DrawUI()
 
 		if (ImGui::BeginMenu("Edit"))
 		{
-			ImGui::MenuItem("Options", nullptr, nullptr);
-			ImGui::MenuItem("Blueprint", nullptr, nullptr);
-			ImGui::MenuItem("Another opt", nullptr, nullptr);
+			std::string label = (Engine::GetEngineInstance().GetWindow()->IsFullscreen() ? "Exit" : "Enter");
+			label.append(" Full Screen");
+			if (ImGui::MenuItem(label.c_str(), "F11"))
+			{
+				Engine::GetEngineInstance().GetWindow()->SetFullscreen(!Engine::GetEngineInstance().GetWindow()->IsFullscreen());
+			}
+
+			ImGui::Separator();
+
+			if (ImGui::MenuItem("Editor Preferences", nullptr, nullptr))
+			{
+				auto& engineInstance = Engine::GetEngineInstance();
+				auto epPanel = reinterpret_cast<EditorPreferencesPanel*>(engineInstance.GetUIFrames()["Editor Preferences"]);
+
+				epPanel->Activate(true);
+			}
+		
+			ImGui::EndMenu();
+		}
+		
+		if (ImGui::BeginMenu("Shader", Renderer::GetRenderer()->GetShader().get()))
+		{
+			if (ImGui::MenuItem("Recompile Shader", "Ctrl+F5", nullptr, !Engine::GetEngineInstance().GetSettings()->hotReload))
+			{
+				auto& engine = Engine::GetEngineInstance();
+				auto filepath = Renderer::GetRenderer()->GetShader()->GetFilepath();
+
+				engine.OpenFile(filepath, true);
+			}
+
+			ImGui::Separator();
+			if (ImGui::MenuItem("Delete Cache"))
+				Renderer::GetRenderer()->DeleteShaderCache();
+
+			ImGui::EndMenu();
+		}
+
+		if (ImGui::BeginMenu("Window"))
+		{
+			for (auto [name, panel] : Engine::GetEngineInstance().GetUIFrames())
+				if (name != "Editor Preferences" && name != "Menu Bar")
+					if (ImGui::MenuItem(name.c_str(), nullptr, false, !panel->IsActive()))
+						panel->Activate(true);
 
 			ImGui::EndMenu();
 		}
@@ -246,7 +278,7 @@ void MenuBarPanel::OnEvent(Event& e)
 			{
 				if (Renderer::GetRenderer()->GetShader())
 				{
-					auto sources = reinterpret_cast<ShaderEditorPanel*>(Engine::GetEngineInstance().GetUIFrames()["Shader Editor"])->GetSources();
+					auto sources = reinterpret_cast<ShaderEditorPanel*>(Engine::GetEngineInstance().GetUIFrames()["Shader Editor"])->GetFragSource();
 					Engine::GetEngineInstance().SaveFile(sources, FileDialogs::SaveFileAs(""));
 				}
 			}
@@ -254,7 +286,7 @@ void MenuBarPanel::OnEvent(Event& e)
 			{
 				if (Renderer::GetRenderer()->GetShader())
 				{
-					auto sources = reinterpret_cast<ShaderEditorPanel*>(Engine::GetEngineInstance().GetUIFrames()["Shader Editor"])->GetSources();
+					auto sources = reinterpret_cast<ShaderEditorPanel*>(Engine::GetEngineInstance().GetUIFrames()["Shader Editor"])->GetFragSource();
 					Engine::GetEngineInstance().SaveFile(sources);
 				}
 			}
@@ -273,65 +305,14 @@ void MenuBarPanel::OnEvent(Event& e)
 				Engine::GetEngineInstance().Close();
 			}
 			break;
+		case Key::F11:
+			Engine::GetEngineInstance().GetWindow()->SetFullscreen(!Engine::GetEngineInstance().GetWindow()->IsFullscreen());
+			break;
 		}
 
 		return true;
 		});
 }
-
-  ////////////////////////////////////
- ////  DIRECTORY EXPLORER PANEL  ////
-////////////////////////////////////
-void DirectoryExplorerPanel::DrawUI()
-{
-	ImGui::Begin("Directory Explorer");
-	if (Renderer::GetRenderer()->GetShader())
-	{
-		mCurrentDirectory = "";
-		mFiles = {};
-
-		std::string shaderPath = Renderer::GetRenderer()->GetShader()->GetFilepath();
-		unsigned int idx = shaderPath.find_last_of("\\");
-
-		for (int i = 0; i < idx; i++)
-			mCurrentDirectory += shaderPath[i];
-
-		std::filesystem::path path(mCurrentDirectory);
-		for (auto& content : std::filesystem::directory_iterator(path))
-		{
-			if (content.is_directory())
-			{
-				if (ImGui::Selectable(Trim(content.path().string()).c_str()))
-				{
-					mCurrentDirectory = content;
-				}
-			}
-			else
-			{
-				mFiles.push_back(content.path().string());
-			}
-		}
-
-		ImGui::Separator();
-
-		for (auto& file : mFiles)
-			if (ImGui::Selectable(Trim(file.string()).c_str()))
-				Engine::GetEngineInstance().OpenFile(file.string());
-	}
-
-	ImGui::End();
-}
-
-std::string DirectoryExplorerPanel::Trim(const std::string& path)
-{
-	std::string result = "";
-
-	auto idx = path.find_last_of("\\") + 1;
-	for (idx; idx < path.size(); idx++)
-		result += path[idx];
-	
-	return result;
-};
 
   /////////////////////
  ////  LOG PANEL  ////
@@ -343,8 +324,7 @@ void LogPanel::DrawUI()
 		msgData << *it;
 
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, { 5.0f, 5.0f });
-	ImGui::Begin("Output Logger", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
-
+	ImGui::Begin("Output Logger", &mActive, windowFlags);
 	if (ImGui::Button("Clear")) mLogMsgs.clear();
 	ImGui::SameLine();
 	if (ImGui::Button("Copy to Clipboard"))
@@ -355,7 +335,13 @@ void LogPanel::DrawUI()
 		
 		ImGui::SetClipboardText(clipboard.str().c_str());
 	}
+
+	auto& io = ImGui::GetIO();
+	auto font = io.Fonts->Fonts[3];
+	ImGui::PushFont(font);
+
 	ImGui::InputTextMultiline("Logger", (char*)msgData.str().c_str(), msgData.str().size(), ImGui::GetContentRegionAvail(), ImGuiInputTextFlags_ReadOnly);
+	ImGui::PopFont();
 
 	ImGui::End();
 	ImGui::PopStyleVar();
@@ -364,4 +350,58 @@ void LogPanel::DrawUI()
 void LogPanel::PushMessage(const std::string& msg)
 {
 	mLogMsgs.push_back(msg);
+}
+
+EditorPreferencesPanel::EditorPreferencesPanel(const std::string& name) : UIPanel(name, false)
+{
+	windowFlags |= ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoDocking;
+}
+
+void EditorPreferencesPanel::DrawUI()
+{
+	auto settings = Engine::GetEngineInstance().GetSettings();
+
+	if (mActive && !ImGui::IsPopupOpen("Editor Preferences"))
+		ImGui::OpenPopup("Editor Preferences");
+
+	if (ImGui::BeginPopupModal("Editor Preferences", &mActive, windowFlags))
+	{
+		ImGui::SetWindowSize({ 500, 400 });
+		if (ImGui::CollapsingHeader("Theme"))
+		{
+			if (ImGui::Combo("Selected Theme", &settings->theme, "Dark\0Light\0"))
+			{
+				switch (settings->theme)
+				{
+				case 0:
+					break;
+				case 1:
+					break;
+				}
+			}
+		}
+
+		if (ImGui::CollapsingHeader("Environment"))
+		{
+			ImGui::Text("Uniform Names");
+			ImGui::InputText("Resolution", settings->uResolutionName.data(), 25);
+			ImGui::InputText("Mouse Position", settings->uMousePositionName.data(), 25);
+			ImGui::InputText("Time", settings->uTimeName.data(), 25);
+			ImGui::Separator();
+
+			ImGui::Text("Shader");
+			ImGui::Checkbox("Hot reload", &settings->hotReload);
+			ImGui::Checkbox("Auto saving", &settings->autoSaving);
+
+			if (settings->autoSaving)
+			{
+				auto file = (settings->tempFilepath == "" ? "<default file>" : settings->tempFilepath.c_str());
+				ImGui::Text("%s", file);
+				ImGui::SameLine();
+				ImGui::Button("Select a file");
+			}
+		}
+
+		ImGui::EndPopup();
+	}
 }

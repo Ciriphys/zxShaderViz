@@ -29,6 +29,33 @@ private:
 	unsigned int mHeight;
 };
 
+class WindowMoved : public Event
+{
+public:
+	WindowMoved(unsigned int posx, unsigned int posy) : mPosx(posx), mPosy(posy) {}
+
+	virtual EventType	GetEventType()		const override { return EventType::WindowMoved; }
+	virtual const char* GetEventName()		const override { return "WindowMoved"; }
+	virtual std::string GetEventNameStr()   const override { return "WindowMoved"; }
+	virtual std::string GetEventInfo()		const override
+	{
+		std::stringstream ss;
+		ss << "WindowMoved: [x(" << mPosx << ") | y(" << mPosy << ")]";
+		return ss.str();
+	}
+
+	unsigned int GetPosX() const { return mPosx; }
+	unsigned int GetPosY() const { return mPosy; }
+
+	static EventType GetEventStaticType() { return EventType::WindowMoved; }
+
+	virtual bool IsHandled() const override { return mHandled; }
+
+private:
+	unsigned int mPosx;
+	unsigned int mPosy;
+};
+
 class WindowClosed : public Event 
 { 
 public:

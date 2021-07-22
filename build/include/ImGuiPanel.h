@@ -18,5 +18,6 @@ public:
 protected:
 	void Init();
 	void SetWindowStyle();
+	void SetGayStyle();
 };
 

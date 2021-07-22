@@ -18,7 +18,8 @@ enum class ShaderType : int
 enum class ShaderFileType : int
 {
 	GLSL = 0,
-	zxshad = 1,
+	zxs = 1,
+	frag = 2,
 
 	Error = -1
 };
@@ -34,8 +35,10 @@ static ShaderFileType GetTypeFromExtension(const std::string& ext)
 {
 	if (ext == ".glsl")
 		return ShaderFileType::GLSL;
-	else if (ext == ".zxshad")
-		return ShaderFileType::zxshad;
+	else if (ext == ".zxs")
+		return ShaderFileType::zxs;
+	else if (ext == ".frag" || ext == ".fragment")
+		return ShaderFileType::frag;
 	else
 		return ShaderFileType::Error;
 }
@@ -44,7 +47,6 @@ class Shader
 {
 public:
 	Shader(const std::string& filepath, ShaderFileType type);
-	std::string operator[] (unsigned int index) const;
 	operator unsigned int() const;
 
 	void SetUniform(const std::string& uniformName, float v0);
@@ -69,27 +71,20 @@ public:
 	bool IsLinked() const { return mStatus == ShaderStatus::Linked; }
 	ShaderStatus GetStatus() const { return mStatus; }
 
-	std::string GetFilepath() const { return path; }
-
-	struct ShaderSources
-	{
-		std::string vertexSource;
-		std::string fragmentSource;
-	};
-
-	ShaderSources GetSources() const { return mSources; }
+	std::string GetFilepath() const { return mPath; }
+	std::string GetFragmentSource() const { return mSource; }
 
 private:
 	bool CreateShader();
 	unsigned int CompileShader(unsigned int type, const char* src);
-	bool ParseGLSLShaders(const std::string& glslpath);
-	bool ParseZXSHADShaders(const std::string& filepath);
 
-	std::string path;
+	bool ParseFragmentShader(const std::string& filepath);
+
+	std::string mPath;
+	std::string mSource;
 
 	unsigned int mProgram;
 
 	ShaderFileType mType;
-	ShaderSources mSources;
 	ShaderStatus mStatus;
 };

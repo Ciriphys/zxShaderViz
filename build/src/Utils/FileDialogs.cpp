@@ -62,4 +62,5 @@ namespace FileDialogs
 
 		return std::string();
 	}
+
 }

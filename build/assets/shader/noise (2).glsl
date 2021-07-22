@@ -8,8 +8,10 @@ out vec4 other;
 void main()
 {
 	gl_Position = vec4(a_Pos, 0.0f, 1.0f);
-   other = vec4(1.0f, 1.0f, 1.0f, 1.0f) ;
+    other = vec4(1.0f, 1.0f, 1.0f, 1.0f) ;
 }
+
+
 
 
 
@@ -66,6 +68,20 @@ void main() {
 
     o_Color = vec4(vec3(n), 1.0) * other;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -1,94 +1,9 @@
-@vertex
 #version 460 core
 
-layout(location = 0) in vec2 a_Pos;
+uniform vec2 uResolution;
+uniform vec2 uMouse;
+uniform float uTime;
 
-out vec4 other;
-
-void main()
-{
-  gl_Position = vec4(a_Pos, 0.0f, 1.0f);
-  other = vec4(1.0f, 0.0f, 1.0f, 1.0f);
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-@fragment
-#version 460 core
-
-uniform vec2 u_Resolution;
-uniform vec2 u_Mouse;
-uniform float u_Time;
-
-in vec4 other;
 out vec4 o_Color;
 
 vec2 random2( vec2 p ) {
@@ -96,8 +11,8 @@ vec2 random2( vec2 p ) {
 }
 
 void main() {
-    vec2 st = gl_FragCoord.xy/u_Resolution.xy;
-    st.x *= u_Resolution.x/u_Resolution.y;
+    vec2 st = gl_FragCoord.xy/uResolution.xy;
+    st.x *= uResolution.x/uResolution.y;
     vec3 color = vec3(.0);
 
     // Scale
@@ -118,7 +33,7 @@ void main() {
             vec2 point = random2(i_st + neighbor);
 
 // Animate the point
-            point = 0.5 + 0.5*sin(u_Time + 6.2831*point);
+            point = 0.5 + 0.5*sin(uTime + 6.2831*point);
 
 // Vector between the pixel and the point
             vec2 diff = neighbor + point - f_st;
@@ -143,37 +58,8 @@ void main() {
     // Show isolines
     color -= step(.7,abs(sin(27.0*m_dist)))*.5;
 
-    o_Color = vec4(color,1.0) * other;
+    o_Color = vec4(color,1.0) * vec4(1.0f, 1.0f, 1.0f, 0.7f);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

@@ -1,94 +1,9 @@
-@vertex
-#version 460 core
-
-layout(location = 0) in vec2 a_Pos;
-
-out vec4 other;
-
-void main()
-{
-  gl_Position = vec4(a_Pos, 0.0f, 1.0f);
-  other = vec4(1.0f, 0.0f, 1.0f, 1.0f);
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-@fragment
 #version 460 core
 
 uniform vec2 u_Resolution;
 uniform vec2 u_Mouse;
 uniform float u_Time;
 
-in vec4 other;
 out vec4 o_Color;
 
 vec2 random2( vec2 p ) {
@@ -96,6 +11,8 @@ vec2 random2( vec2 p ) {
 }
 
 void main() {
+	vec4 other = vec4(1.0f, 1.0f, 0.0f, 1.0f);
+
     vec2 st = gl_FragCoord.xy/u_Resolution.xy;
     st.x *= u_Resolution.x/u_Resolution.y;
     vec3 color = vec3(.0);
@@ -145,48 +62,4 @@ void main() {
 
     o_Color = vec4(color,1.0) * other;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

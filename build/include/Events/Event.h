@@ -13,6 +13,7 @@ enum class EventType
 	MouseWheelScrolled, 
 
 	WindowResized,
+	WindowMoved,
 	WindowClosed,
 
 	AppTick,

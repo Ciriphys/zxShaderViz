@@ -33,13 +33,25 @@ void Window::Close()
 {
 	glfwTerminate();
 	s_glfwInit = false;
-	mIsActive = false;
+	mData.mIsActive = false;
+}
+
+uint32_t Window::GetPosX()
+{
+	glfwGetWindowPos(mWindow, &mData.mSettings.windowPosx, nullptr);
+	return uint32_t(mData.mSettings.windowPosx);
+}
+
+uint32_t Window::GetPosY()
+{
+	glfwGetWindowPos(mWindow, nullptr, &mData.mSettings.windowPosy);
+	return uint32_t(mData.mSettings.windowPosy);
 }
 
 void Window::SetRefreshRate(RefreshRate rrate)
 {
-	mData.mRefreshRate = rrate;
-	glfwSwapInterval(mData.mRefreshRate);
+	mData.mSettings.refreshRate = rrate;
+	glfwSwapInterval(mData.mSettings.refreshRate);
 }
 
 void Window::SetTitle(std::string title)
@@ -48,7 +60,50 @@ void Window::SetTitle(std::string title)
 	glfwSetWindowTitle(mWindow, mData.mTitle.c_str());
 }
 
-void Window::Init()
+void Window::SetFullscreen(bool fs)
+{
+	mData.mSettings.fullscreen = fs;
+	if (fs)
+	{
+		GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+		const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+
+		int oldSizex = mData.mSettings.windowSizex;
+		int oldSizey = mData.mSettings.windowSizey;
+		int oldPosx = mData.mSettings.windowPosx;
+		int oldPosy = mData.mSettings.windowPosy;
+
+		glfwSetWindowMonitor(mWindow, monitor, 0, 0, mode->width, mode->height, mode->refreshRate);
+
+		mData.mSettings.windowSizex = oldSizex;
+		mData.mSettings.windowSizey = oldSizey;
+		mData.mSettings.windowPosx = oldPosx;
+		mData.mSettings.windowPosy = oldPosy;
+	}
+	else
+	{
+		int oldSizex = mData.mSettings.windowSizex;
+		int oldSizey = mData.mSettings.windowSizey;
+		int oldPosx = mData.mSettings.windowPosx;
+		int oldPosy = mData.mSettings.windowPosy;
+
+		glfwSetWindowMonitor(
+			mWindow, 
+			nullptr,
+			mData.mSettings.windowPosx, 
+			mData.mSettings.windowPosy,
+			mData.mSettings.windowSizex, 
+			mData.mSettings.windowSizey,
+		60);
+
+		mData.mSettings.windowSizex = oldSizex;
+		mData.mSettings.windowSizey = oldSizey;
+		mData.mSettings.windowPosx = oldPosx;
+		mData.mSettings.windowPosy = oldPosy;
+	}
+}
+
+void Window::Init(WindowSettings settings)
 {
 	if (!s_glfwInit)
 	{
@@ -62,7 +117,19 @@ void Window::Init()
 		s_glfwInit = true;
 	}
 
-	mWindow = glfwCreateWindow(mData.mWidth, mData.mHeight, mData.mTitle.c_str(), nullptr, nullptr);
+	GLFWmonitor* monitor = nullptr;
+
+	if (settings.fullscreen)
+	{
+		monitor = glfwGetPrimaryMonitor();
+		const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+		mData.mSettings.windowSizex = mode->width;
+		mData.mSettings.windowSizey = mode->height;
+		mData.mSettings.windowPosx = 0;
+		mData.mSettings.windowPosy = 0;
+	}
+
+	mWindow = glfwCreateWindow(mData.mSettings.windowSizex, mData.mSettings.windowSizey, mData.mTitle.c_str(), monitor, nullptr);
 	glfwMakeContextCurrent(mWindow);
 
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
@@ -71,8 +138,9 @@ void Window::Init()
 		// Error Handling
 	}
 
+	glfwSetWindowPos(mWindow, settings.windowPosx, settings.windowPosy);
 	glfwSetWindowUserPointer(mWindow, reinterpret_cast<void*>(&mData));
-	glViewport(0, 0, mData.mWidth, mData.mHeight);
+	glViewport(0, 0, mData.mSettings.windowSizex, mData.mSettings.windowSizey);
 
 	// Setup Event Handling
 	glfwSetKeyCallback(mWindow, [](GLFWwindow* wnd, int key, int scancode, int action, int mods)
@@ -107,12 +175,23 @@ void Window::Init()
 	glfwSetWindowSizeCallback(mWindow, [](GLFWwindow* wnd, int width, int height)
 		{
 			WindowData& data = *reinterpret_cast<WindowData*>(glfwGetWindowUserPointer(wnd));
-			data.mWidth = width;
-			data.mHeight = height;
+			data.mSettings.windowSizex = width;
+			data.mSettings.windowSizey = height;
 
 			WindowResized e(width, height);
 			data.mProcedure(e);
 		});
+
+	glfwSetWindowPosCallback(mWindow, [](GLFWwindow* wnd, int posx, int posy) 
+	{
+			WindowData& data = *reinterpret_cast<WindowData*>(glfwGetWindowUserPointer(wnd));
+			data.mSettings.windowPosx = posx;
+			data.mSettings.windowPosy = posy;
+
+			WindowMoved e(posx, posy);
+			data.mProcedure(e);
+	});
+	
 
 	glfwSetWindowCloseCallback(mWindow, [](GLFWwindow* wnd)
 		{
@@ -170,5 +249,5 @@ void Window::Init()
 		data.mProcedure(e);
 	});
 
-	mIsActive = true;
+	mData.mIsActive = true;
 }

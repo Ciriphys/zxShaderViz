@@ -13,18 +13,24 @@ public:
 
 	std::string GetName() const { return mName; }
 
-	template<typename T>
-	const T* as() const { return reinterpret_cast<T*>(this); }
+	bool IsActive() const { return mActive; }
+	void Activate(bool state) { mActive = state; }
 
 protected:
-	UIPanel(const std::string& name) : mName(name) {}
+	UIPanel(const std::string& name, bool active = true) : mName(name), mActive(active) 
+	{ windowFlags = ImGuiWindowFlags_NoCollapse; }
+
 	std::string mName;
+	bool mActive;
+
+	ImGuiWindowFlags windowFlags;
 };
 
 class MenuBarPanel : public UIPanel
 {
 public:
 	MenuBarPanel(const std::string& name) : UIPanel(name) {}
+
 	virtual void DrawUI() override;
 	virtual void OnEvent(Event& e);
 };
@@ -33,12 +39,12 @@ class ViewportPanel : public UIPanel
 {
 public:
 	ViewportPanel(const std::string& name) : UIPanel(name) {}
-	void SetFrameBuffer(std::shared_ptr<FrameBuffer> fb) { mFrameBuffer = fb; }
-
-	glm::vec2 GetMousePos() const { return mMousePos; }
 
 	virtual void DrawUI() override;
 	virtual void OnEvent(Event& e) {}
+
+	void SetFrameBuffer(std::shared_ptr<FrameBuffer> fb) { mFrameBuffer = fb; }
+	glm::vec2 GetMousePos() const { return mMousePos; }
 
 private:
 	glm::vec2 mViewportSize = { 0, 0 };
@@ -50,13 +56,13 @@ class ShaderEditorPanel : public UIPanel
 {
 public:
 	ShaderEditorPanel(const std::string& name) : UIPanel(name) {}
+	
 	virtual void DrawUI() override;
 	virtual void OnEvent(Event& e) {}
 
-	std::vector<std::string> GetSources() { return { mVertexSrc, mFragmentSrc }; }
+	std::string GetFragSource() { return mFragmentSrc; }
 
 private:
-	std::string mVertexSrc;
 	std::string mFragmentSrc;
 };
 
@@ -64,15 +70,17 @@ class DemoPanel : public UIPanel
 {
 public:
 	DemoPanel(const std::string& name) : UIPanel(name) { }
+	
 	virtual void DrawUI() override { ImGui::ShowDemoWindow(); }
 	virtual void OnEvent(Event& e) {}
-
 };
 
 class LogPanel : public UIPanel
 {
 public: 
-	LogPanel(const std::string& name) : UIPanel(name), mLogMsgs({}) { }
+	LogPanel(const std::string& name) : UIPanel(name), mLogMsgs({}) 
+	{ windowFlags |= ImGuiWindowFlags_AlwaysAutoResize; }
+
 	virtual void DrawUI() override;
 	virtual void OnEvent(Event& e) {}
 
@@ -82,16 +90,11 @@ private:
 	std::vector<std::string> mLogMsgs;
 };
 
-class DirectoryExplorerPanel : public UIPanel
+class EditorPreferencesPanel : public UIPanel
 {
 public:
-	DirectoryExplorerPanel(const std::string& name) : UIPanel(name), mCurrentDirectory(""), mFiles({}) { }
+	EditorPreferencesPanel(const std::string& name);
+	
 	virtual void DrawUI() override;
 	virtual void OnEvent(Event& e) {}
-
-private:
-	std::string Trim(const std::string& path);
-	
-	std::filesystem::path mCurrentDirectory;
-	std::vector<std::filesystem::path> mFiles;
 };

@@ -8,8 +8,15 @@ out vec4 auxiliaryColor;
 void main()
 {
     gl_Position = vec4(a_Pos, 0.0f, 1.0f);
-    //auxiliaryColor = vec4(1.0f, 0.7f, 1.0f, 1.0f);
+    //auxiliaryColor = vec4(1.0f, 0.8f, 1.0f, 1.0f);
 }
+
+
+
+
+
+
+
 
 
 
@@ -92,8 +99,12 @@ out vec4 oColor;
 void main() 
 {
 	vec2 st = gl_FragCoord.xy/u_Resolution;
-	oColor = vec4(st, 0.5f, 1.0f);
+	oColor = vec4(st, 0.3f, 1.0f);
 }
+
+
+
+
 
 
 

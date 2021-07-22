@@ -18,38 +18,51 @@ enum RefreshRate : unsigned int
 	RefreshRate_30hz = 2
 };
 
+struct WindowSettings
+{
+	int windowSizex;
+	int windowSizey;
+	int windowPosx;
+	int windowPosy;
+
+	bool fullscreen;
+	RefreshRate refreshRate;
+};
+
 class Window
 {
 public:
 	Window
 	(
-		uint32_t width = 1600,
-		uint32_t height = 900,
-		std::string title = "ZeXo Shading",
-		RefreshRate rrate = RefreshRate_60hz
+		WindowSettings settings,
+		std::string title = "ZeXo Shading"
 	) 
 	{
-		mData.mWidth			= width;
-		mData.mHeight			= height;
-		mData.mTitle			= title;
-		mData.mRefreshRate	= rrate;
+		mData.mSettings = settings;
+		mData.mTitle = title;
 
-		Init();
+		Init(settings);
 	}
 
 	~Window() = default;
 
-	uint32_t	 GetWidth()			const { return mData.mWidth;		 }
-	uint32_t	 GetHeight()		const { return mData.mHeight;		 }
-	std::string  GetTitle()			const { return mData.mTitle;		 }
-	RefreshRate  GetRefreshRate()	const { return mData.mRefreshRate; }
-	GLFWwindow* GetNativeWindow()   const { return mWindow; }
+	uint32_t	 GetWidth()			const { return mData.mSettings.windowSizex; }
+	uint32_t	 GetHeight()		const { return mData.mSettings.windowSizey; }
+	
+	uint32_t	 GetPosX();
+	uint32_t	 GetPosY();
 
-	bool		 IsVsync()   const { return mData.mRefreshRate == RefreshRate_60hz;  }
-	bool		 IsActive()	 const { return mIsActive; }
+	GLFWwindow* GetNativeWindow()   const { return mWindow; }
+	std::string  GetTitle()			const { return mData.mTitle; }
+	RefreshRate  GetRefreshRate()	const { return mData.mSettings.refreshRate; }
+
+	bool		 IsVsync()		 const { return mData.mSettings.refreshRate == RefreshRate_60hz; }
+	bool		 IsFullscreen()  const { return mData.mSettings.fullscreen; }
+	bool		 IsActive()		 const { return mData.mIsActive; }
 
 	void SetRefreshRate(RefreshRate);
 	void SetTitle(std::string);
+	void SetFullscreen(bool);
 
 	void SetEventCallbackProcedure(const EventProcedure&);
 
@@ -58,19 +71,18 @@ public:
 	void Close();
 
 private:
-	void Init();
+	void Init(WindowSettings);
 
 	GLFWwindow* mWindow;
 	
 	struct WindowData
 	{
-		uint32_t mWidth = 0, mHeight = 0;
-		std::string mTitle;
-		RefreshRate mRefreshRate = RefreshRate_60hz;
+		WindowSettings mSettings;
 
+		bool mIsActive = false;
+		std::string mTitle;
 		EventProcedure mProcedure;
 	};
 
-	bool mIsActive = false;
 	WindowData mData;
 };
