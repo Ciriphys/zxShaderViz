@@ -36,13 +36,13 @@ void Window::Close()
 	mData.mIsActive = false;
 }
 
-uint32_t Window::GetPosX()
+uint32_t Window::GetCurrPosX()
 {
 	glfwGetWindowPos(mWindow, &mData.mSettings.windowPosx, nullptr);
 	return uint32_t(mData.mSettings.windowPosx);
 }
 
-uint32_t Window::GetPosY()
+uint32_t Window::GetCurrPosY()
 {
 	glfwGetWindowPos(mWindow, nullptr, &mData.mSettings.windowPosy);
 	return uint32_t(mData.mSettings.windowPosy);
@@ -60,49 +60,6 @@ void Window::SetTitle(std::string title)
 	glfwSetWindowTitle(mWindow, mData.mTitle.c_str());
 }
 
-void Window::SetFullscreen(bool fs)
-{
-	mData.mSettings.fullscreen = fs;
-	if (fs)
-	{
-		GLFWmonitor* monitor = glfwGetPrimaryMonitor();
-		const GLFWvidmode* mode = glfwGetVideoMode(monitor);
-
-		int oldSizex = mData.mSettings.windowSizex;
-		int oldSizey = mData.mSettings.windowSizey;
-		int oldPosx = mData.mSettings.windowPosx;
-		int oldPosy = mData.mSettings.windowPosy;
-
-		glfwSetWindowMonitor(mWindow, monitor, 0, 0, mode->width, mode->height, mode->refreshRate);
-
-		mData.mSettings.windowSizex = oldSizex;
-		mData.mSettings.windowSizey = oldSizey;
-		mData.mSettings.windowPosx = oldPosx;
-		mData.mSettings.windowPosy = oldPosy;
-	}
-	else
-	{
-		int oldSizex = mData.mSettings.windowSizex;
-		int oldSizey = mData.mSettings.windowSizey;
-		int oldPosx = mData.mSettings.windowPosx;
-		int oldPosy = mData.mSettings.windowPosy;
-
-		glfwSetWindowMonitor(
-			mWindow, 
-			nullptr,
-			mData.mSettings.windowPosx, 
-			mData.mSettings.windowPosy,
-			mData.mSettings.windowSizex, 
-			mData.mSettings.windowSizey,
-		60);
-
-		mData.mSettings.windowSizex = oldSizex;
-		mData.mSettings.windowSizey = oldSizey;
-		mData.mSettings.windowPosx = oldPosx;
-		mData.mSettings.windowPosy = oldPosy;
-	}
-}
-
 void Window::Init(WindowSettings settings)
 {
 	if (!s_glfwInit)
@@ -117,19 +74,7 @@ void Window::Init(WindowSettings settings)
 		s_glfwInit = true;
 	}
 
-	GLFWmonitor* monitor = nullptr;
-
-	if (settings.fullscreen)
-	{
-		monitor = glfwGetPrimaryMonitor();
-		const GLFWvidmode* mode = glfwGetVideoMode(monitor);
-		mData.mSettings.windowSizex = mode->width;
-		mData.mSettings.windowSizey = mode->height;
-		mData.mSettings.windowPosx = 0;
-		mData.mSettings.windowPosy = 0;
-	}
-
-	mWindow = glfwCreateWindow(mData.mSettings.windowSizex, mData.mSettings.windowSizey, mData.mTitle.c_str(), monitor, nullptr);
+	mWindow = glfwCreateWindow(mData.mSettings.windowSizex, mData.mSettings.windowSizey, mData.mTitle.c_str(), nullptr, nullptr);
 	glfwMakeContextCurrent(mWindow);
 
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))

@@ -16,6 +16,7 @@ static std::string vertexSrc = "#version 460 core\n"
 
 Shader::Shader(const std::string& filepath, ShaderFileType type)
 {
+	auto& engine = Engine::GetEngineInstance();
 	bool parseResult = false;
 	mType = type;
 	mProgram = 0;
@@ -29,13 +30,13 @@ Shader::Shader(const std::string& filepath, ShaderFileType type)
 	case ShaderFileType::GLSL:
 		//parseResult = ParseGLSLShaders(filepath);
 		msg << ".glsl files are not supported at the moment." << std::endl;
-		reinterpret_cast<LogPanel*>(Engine::GetEngineInstance().GetUIFrames()["Log Panel"])->PushMessage(msg.str());
+		engine.LogMessage(Warn, msg.str());
 		msg.str(std::string());
 		break;
 	case ShaderFileType::zxs:
 		//parseResult = ParseZXSHADShaders(filepath);
 		msg << ".zxs files are not supported at the moment." << std::endl;
-		reinterpret_cast<LogPanel*>(Engine::GetEngineInstance().GetUIFrames()["Log Panel"])->PushMessage(msg.str());
+		engine.LogMessage(Warn, msg.str());
 		msg.str(std::string());
 		break;
 	}
@@ -45,7 +46,7 @@ Shader::Shader(const std::string& filepath, ShaderFileType type)
 		if (CreateShader())
 		{
 			msg << "Shader successfully created and enabled!" << std::endl;
-			reinterpret_cast<LogPanel*>(Engine::GetEngineInstance().GetUIFrames()["Log Panel"])->PushMessage(msg.str());
+			engine.LogMessage(Success, msg.str());
 			msg.clear();
 
 			mStatus = ShaderStatus::Linked;
@@ -54,7 +55,7 @@ Shader::Shader(const std::string& filepath, ShaderFileType type)
 	}
 
 	msg << "Shader couldn't be created.\n";
-	reinterpret_cast<LogPanel*>(Engine::GetEngineInstance().GetUIFrames()["Log Panel"])->PushMessage(msg.str());
+	engine.LogMessage(Fatal, msg.str());
 	mStatus = ShaderStatus::Parsed;
 }
 
@@ -160,17 +161,35 @@ bool Shader::CreateShader()
 	glLinkProgram(mProgram);
 
 	unsigned int result;
+	std::stringstream msg;
+
 	glGetProgramiv(mProgram, GL_LINK_STATUS, (int*)&result);
 	if (!result)
 	{
 		char infoLog[512];
 		glGetProgramInfoLog(mProgram, 512, 0, infoLog);
-		std::cout << "Program linking failed.\n infoLog:\n" << infoLog << std::endl << std::endl;
+
+		std::string logline = "";
+		for (int i = 0; i < sizeof(infoLog); i++)
+		{
+			if (infoLog[i] != '\n')
+				logline += infoLog[i];
+			else
+			{
+				msg << "[Linker] Error: " << logline << std::endl;
+				logline = "";
+			}
+		}
+
+		Engine::GetEngineInstance().LogMessage(Error, msg.str());
+
 		return false;
 	}
 
-	std::cout << "Program linking was successful!\n";
+	msg << "Program linking was successful!\n";
 	mStatus = ShaderStatus::Linked;
+
+	Engine::GetEngineInstance().LogMessage(Success, msg.str());
 
 	glDeleteShader(vertexShader);
 	glDeleteShader(fragmentShader);
@@ -208,7 +227,7 @@ unsigned int Shader::CompileShader(unsigned int type, const char* src)
 			}
 		}
 
-		reinterpret_cast<LogPanel*>(Engine::GetEngineInstance().GetUIFrames()["Log Panel"])->PushMessage(msg.str());
+		Engine::GetEngineInstance().LogMessage(Error, msg.str());
 
 		mStatus = ShaderStatus::Parsed;
 		return (unsigned int)(-1);

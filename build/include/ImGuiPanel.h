@@ -15,9 +15,9 @@ public:
 	void Update(float deltaTime);
 	void Finalize();
 
+	void ChangeTheme(int theme);
+
 protected:
 	void Init();
-	void SetWindowStyle();
-	void SetGayStyle();
 };
 

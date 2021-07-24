@@ -43,9 +43,17 @@ public:
 	std::shared_ptr<EngineSettings> GetSettings() const { return mSettings; }
 	std::unordered_map<std::string, UIPanel*> GetUIFrames() const { return mUIFrames; }
 
+	void NewFile();
 	void OpenFile(const std::string& filepath, bool recache = false);
-	void SaveFile(const std::string& fragSource, const std::string& filepath = "");
+	void SaveFile(std::string fragSource, const std::string& filepath = "");
 	void CloseFile();
+	void RestoreFile();
+
+	void WriteToTempFile(const std::string& src);
+
+	void LogMessage(Severity severity, std::string msg);
+
+	void ChangeEditorTheme(int theme);
 
 	void Close();
 

@@ -100,13 +100,15 @@ void Renderer::Draw()
 
 std::shared_ptr<Shader> Renderer::LoadShaderFromFile(const std::string& filepath, bool recache)
 {
+	auto& engine = Engine::GetEngineInstance();
+
 	auto it = mShaderCache.find(filepath);
 	if (it != mShaderCache.end() && !recache)
 	{
 		mActiveShader = it->second;
 		std::stringstream msg;
 		msg << "Loading cached from path: " << it->first << "\n";
-		reinterpret_cast<LogPanel*>(Engine::GetEngineInstance().GetUIFrames()["Log Panel"])->PushMessage(msg.str());
+		engine.LogMessage(Info, msg.str());
 		return mActiveShader;
 	}
 
@@ -121,16 +123,23 @@ std::shared_ptr<Shader> Renderer::LoadShaderFromFile(const std::string& filepath
 	{
 		std::stringstream msg;
 		msg << "File {" << GetSubstring(filepath, filepath.find_last_of("\\"), filepath.length() - 1) << "} is not a valid file!\n";
-		reinterpret_cast<LogPanel*>(Engine::GetEngineInstance().GetUIFrames()["Log Panel"])->PushMessage(msg.str());
+		engine.LogMessage(Error, msg.str());
 		return nullptr;
 	}
 
 	std::stringstream msg;
-	msg << "Loading from path: " << filepath << "\n\n";
-	reinterpret_cast<LogPanel*>(Engine::GetEngineInstance().GetUIFrames()["Log Panel"])->PushMessage(msg.str());
-	mActiveShader = std::make_shared<Shader>(filepath, type);
-	mShaderCache[filepath] = mActiveShader;
-	return mActiveShader;
-
-	return std::shared_ptr<Shader>();
+	if (type == ShaderFileType::frag)
+	{
+		msg << "Loading from path: " << filepath << "\n";
+		engine.LogMessage(Info, msg.str());
+		mActiveShader = std::make_shared<Shader>(filepath, type);
+		mShaderCache[filepath] = mActiveShader;
+		return mActiveShader; // Change this when other shaders will be supported.
+	}
+	else
+	{
+		msg << extension << " files are not currently supported."<< "\n";
+		engine.LogMessage(Warn, msg.str());
+		return nullptr;
+	}
 }

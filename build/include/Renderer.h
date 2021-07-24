@@ -20,6 +20,8 @@ public:
 	const std::shared_ptr<FrameBuffer>& GetFrameBuffer() const { return mFrameBuffer; }
 	const std::shared_ptr<Shader>& GetShader() const { return mActiveShader; }
 
+	void SetShader(const std::shared_ptr<Shader>& shader) { mActiveShader = shader; }
+
 	void DeleteShaderCache() { mShaderCache.clear(); mActiveShader = nullptr; mFrameBuffer->DeleteColorAttachment(); mFrameBuffer->Invalidate(); }
 
 	std::unordered_map<std::string, std::shared_ptr<Shader>> GetRawShaderCache() const { return mShaderCache; }

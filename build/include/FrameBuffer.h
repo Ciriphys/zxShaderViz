@@ -16,10 +16,9 @@ public:
 	void DeleteColorAttachment() { glDeleteTextures(1, &mColorAttachmentId); }
 
 	uint32_t GetColorAttachment() const { return mColorAttachmentId; }
-
-private:
 	void Invalidate();
 
+private:
 	uint32_t mFrameBufferId = 0;
 	uint32_t mColorAttachmentId = 0;
 	uint32_t mWidth = 0, mHeight = 0;

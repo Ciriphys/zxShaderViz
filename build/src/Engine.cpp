@@ -38,18 +38,32 @@ Engine::Engine()
 	auto logPanel = new LogPanel("Log Panel");
 	auto epPanel = new EditorPreferencesPanel("Editor Preferences");
 	auto sePanel = new ShaderEditorPanel("Shader Editor");
+	auto ucPanel = new UpdateChangesPanel("Update Changes");
 
 	mUIFrames[menuBar->GetName()] = menuBar;
 	mUIFrames[demoPan->GetName()] = demoPan;
 	mUIFrames[epPanel->GetName()] = epPanel;
 	mUIFrames[sePanel->GetName()] = sePanel;
+	mUIFrames[ucPanel->GetName()] = ucPanel;
 	mUIFrames[viewport->GetName()] = viewport;
 	mUIFrames[logPanel->GetName()] = logPanel;
+
+	if (mSettings->autoSaving)
+	{
+		if (std::filesystem::exists(mSettings->tempFilepath == "" ? "tempFile.tmp" : mSettings->tempFilepath))
+		{
+			auto popup = new RestoreFilePanel("Restore File");
+			mUIFrames[popup->GetName()] = popup;
+		}
+	}
+
 }
 
 void Engine::RenderLoop()
 {
 	TimeStep ts;
+	auto viewport = reinterpret_cast<ViewportPanel*>(mUIFrames["Viewport"]);
+	auto shaderEditorPanel = reinterpret_cast<ShaderEditorPanel*>(mUIFrames["Shader Editor"]);
 
 	while (mRunning)
 	{
@@ -59,7 +73,7 @@ void Engine::RenderLoop()
 		mWindow->Clear();
 		ts.Update();
 
-		reinterpret_cast<ViewportPanel*>(mUIFrames["Viewport"])->SetFrameBuffer(mRenderer->mFrameBuffer);
+		viewport->SetFrameBuffer(mRenderer->mFrameBuffer);
 
 		mImGuiFrame->Begin();
 		for (auto& [k, uiframe] : mUIFrames)
@@ -69,13 +83,19 @@ void Engine::RenderLoop()
 
 		if (!mRenderer->mActiveShader) continue;
 
-		mRenderer->mActiveShader->SetUniform(mSettings->uResolutionName, { mWindow->GetWidth(), mWindow->GetHeight() });
-		mRenderer->mActiveShader->SetUniform(mSettings->uMousePositionName, reinterpret_cast<ViewportPanel*>(mUIFrames["Viewport"])->GetMousePos());
+		if(shaderEditorPanel->IsSaved())
+			mWindow->SetTitle("ZeXo Shading | " + mRenderer->GetShader()->GetFilepath());
+
+		mRenderer->mActiveShader->SetUniform(mSettings->uResolutionName, viewport->GetViewportSize());
+		mRenderer->mActiveShader->SetUniform(mSettings->uMousePositionName, viewport->GetMousePos());
 		mRenderer->mActiveShader->SetUniform(mSettings->uTimeName, ts.GetExecutionTimef());	
 		mRenderer->Draw();
 	}
 
 	WriteToConfigFile();
+
+	if(shaderEditorPanel->IsSaved())
+		std::filesystem::remove(mSettings->tempFilepath == "" ? "tempFile.tmp" : mSettings->tempFilepath);
 
 	mRenderer->DeleteShaderCache();
 	mWindow->Close();
@@ -87,15 +107,33 @@ Engine& Engine::GetEngineInstance()
 	return *s_Instance;
 }
 
+void Engine::NewFile()
+{
+	auto shaderEditorPanel = reinterpret_cast<ShaderEditorPanel*>(mUIFrames["Shader Editor"]);
+	shaderEditorPanel->SetFragSource("");
+	shaderEditorPanel->SetFilename("untitled.frag");
+	shaderEditorPanel->Save(false);
+	mRenderer->mActiveShader = nullptr;
+	mWindow->SetTitle("ZeXo Shading | " + shaderEditorPanel->GetFilename() + '*');
+}
+
 void Engine::OpenFile(const std::string& filepath, bool recache)
 {
-	if (mRenderer->LoadShaderFromFile(filepath, recache))
+	if (auto shader = mRenderer->LoadShaderFromFile(filepath, recache))
 	{
+		auto shaderEditorPanel = reinterpret_cast<ShaderEditorPanel*>(mUIFrames["Shader Editor"]);
+
+		if (!shaderEditorPanel->IsSaved())
+			shaderEditorPanel->Save();
+
 		mWindow->SetTitle("ZeXo Shading | " + filepath);
+ 		shaderEditorPanel->SetFragSource(shader->GetFragmentSource());		
+		shaderEditorPanel->SetFilename(filepath);
+		mRenderer->mFrameBuffer->Invalidate();
 	}
 }
 
-void Engine::SaveFile(const std::string& fragSource, const std::string& filepath)
+void Engine::SaveFile(std::string fragSource, const std::string& filepath)
 {
 	std::string path;
 	path = filepath == "" ? mRenderer->mActiveShader->GetFilepath() : filepath;
@@ -113,9 +151,9 @@ void Engine::SaveFile(const std::string& fragSource, const std::string& filepath
 	if (!file)
 	{
 		std::stringstream msg;
-		msg << "Could not open file!\n\n";
+		msg << "Could not open file!\n";
 
-		reinterpret_cast<LogPanel*>(Engine::GetEngineInstance().GetUIFrames()["Log Panel"])->PushMessage(msg.str());
+		Engine::GetEngineInstance().LogMessage(Fatal, msg.str());
 
 		return;
 	}
@@ -130,13 +168,71 @@ void Engine::SaveFile(const std::string& fragSource, const std::string& filepath
 	}
 
 	file.close();
-	if(mSettings->hotReload)
-		OpenFile(path, true);
+	OpenFile(path, mSettings->hotReload);
 }
 
 void Engine::CloseFile()
 {
+	auto shaderEditorPanel = reinterpret_cast<ShaderEditorPanel*>(mUIFrames["Shader Editor"]);
+	shaderEditorPanel->SetFilename("");
 	mRenderer->mActiveShader = nullptr;
+	shaderEditorPanel->Save(true);
+	mWindow->SetTitle("ZeXo Shading");
+}
+
+void Engine::RestoreFile()
+{
+	std::fstream file(mSettings->tempFilepath == "" ? "tempFile.tmp" : mSettings->tempFilepath);
+	if (!file)
+	{
+		LogMessage(Fatal, "Something bad happened, and the file couldn't be restored.");
+		return;
+	}
+	std::string prevFileFilepath;
+	std::stringstream buffer;
+	file >> prevFileFilepath;
+	buffer << file.rdbuf();
+	file.close();
+
+	std::fstream prevFile(prevFileFilepath, std::fstream::in | std::fstream::out | std::fstream::trunc);
+	if (!prevFile)
+	{
+		LogMessage(Fatal, "Something bad happened, and the file couldn't be restored.");
+		return;
+	}
+	prevFile << buffer.str();
+	prevFile.close();
+	
+	LogMessage(Success, "The file has been correctly restored!");
+	OpenFile(prevFileFilepath);
+	return;
+}
+
+void Engine::WriteToTempFile(const std::string& src)
+{
+	std::fstream file(
+		mSettings->tempFilepath == "" ? "tempFile.tmp" : mSettings->tempFilepath,
+		std::fstream::in | std::fstream::out | std::fstream::trunc
+	);
+
+	if (!file)
+	{
+		LogMessage(Fatal, "Cannot write on tempFile.tmp!");
+		return;
+	}
+
+	file << src;
+	return;
+}
+
+void Engine::LogMessage(Severity severity, std::string msg)
+{
+	return reinterpret_cast<LogPanel*>(mUIFrames["Log Panel"])->PushMessage(severity, msg);
+}
+
+void Engine::ChangeEditorTheme(int theme)
+{
+	return mImGuiFrame->ChangeTheme(theme);
 }
 
 void Engine::Close()
@@ -181,7 +277,7 @@ bool Engine::OnWindowResized(WindowResized& e)
 WindowSettings Engine::InitializeSettings(const std::string& filename)
 {
 	mSettings = std::make_shared<EngineSettings>();
-	WindowSettings windowSettings = { 1920, 1080, 0, 30, false, (RefreshRate)0 };
+	WindowSettings windowSettings = { 1280, 720, 0, 30, (RefreshRate)0 };
 
 	if (filename != "")
 	{
@@ -244,18 +340,14 @@ WindowSettings Engine::InitializeSettings(const std::string& filename)
 					windowSettings.windowPosy = windowPos[1].as<int>();
 				}
 
-				if (auto fullscreen = windowNode["Fullscreen"])
-				{
-					windowSettings.fullscreen = fullscreen.as<bool>();
-				}
-
 				if (auto refreshRate = windowNode["Refresh Rate"])
 				{
 					windowSettings.refreshRate = (RefreshRate)refreshRate.as<unsigned int>();
 				}
 			}
 
-			return windowSettings;
+			if(engineNode && windowNode)
+				return windowSettings;
 		}
 	}
 
@@ -330,9 +422,8 @@ void Engine::WriteToConfigFile()
 		// Window settings
 		emitter << YAML::Key << "Window";
 		{
-			std::vector<int> wSize = { 1028, 720 };
-			std::vector<int> wPos = { 0, 0 };
-			bool fs = false;
+			std::vector<int> wSize = { 1280, 720 };
+			std::vector<int> wPos = { 0, 30 };
 			RefreshRate rr = RefreshRate_Unlimited;
 
 			if (mWindow)
@@ -341,16 +432,14 @@ void Engine::WriteToConfigFile()
 				wSize[1] = mWindow->GetHeight();
 
 				wPos[0] = mWindow->GetPosX();
-				wPos[1] = mWindow->GetPosY();
+				wPos[1] = std::max(mWindow->GetPosY(), 30u);
 
-				fs = mWindow->IsFullscreen();
 				rr = mWindow->GetRefreshRate();
 			}
 
 			emitter << YAML::BeginMap;
 			emitter << YAML::Key << "Window Size" << YAML::Value << wSize;
 			emitter << YAML::Key << "Window Position" << YAML::Value << wPos;
-			emitter << YAML::Key << "Fullscreen" << YAML::Value << fs;
 			emitter << YAML::Key << "Refresh Rate" << YAML::Value << rr;
 			emitter << YAML::EndMap;
 		}

@@ -390,3 +390,8 @@ FodyWeavers.xsd
 # other 
 [Tt][Oo][Dd][Oo]/
 *.one
+shader/
+*.frag
+*.glsl
+*.zxshad
+*.frag#version

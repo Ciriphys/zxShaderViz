@@ -25,7 +25,6 @@ struct WindowSettings
 	int windowPosx;
 	int windowPosy;
 
-	bool fullscreen;
 	RefreshRate refreshRate;
 };
 
@@ -49,20 +48,22 @@ public:
 	uint32_t	 GetWidth()			const { return mData.mSettings.windowSizex; }
 	uint32_t	 GetHeight()		const { return mData.mSettings.windowSizey; }
 	
-	uint32_t	 GetPosX();
-	uint32_t	 GetPosY();
+	uint32_t	 GetPosX()		const { return mData.mSettings.windowPosx; }
+	uint32_t	 GetPosY()		const { return mData.mSettings.windowPosy; }
 
-	GLFWwindow* GetNativeWindow()   const { return mWindow; }
+
+	uint32_t	 GetCurrPosX();
+	uint32_t	 GetCurrPosY();
+
+	GLFWwindow*  GetNativeWindow()  const { return mWindow; }
 	std::string  GetTitle()			const { return mData.mTitle; }
 	RefreshRate  GetRefreshRate()	const { return mData.mSettings.refreshRate; }
 
 	bool		 IsVsync()		 const { return mData.mSettings.refreshRate == RefreshRate_60hz; }
-	bool		 IsFullscreen()  const { return mData.mSettings.fullscreen; }
 	bool		 IsActive()		 const { return mData.mIsActive; }
 
 	void SetRefreshRate(RefreshRate);
 	void SetTitle(std::string);
-	void SetFullscreen(bool);
 
 	void SetEventCallbackProcedure(const EventProcedure&);
 
