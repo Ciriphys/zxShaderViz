@@ -397,5 +397,5 @@ build/assets/shader/
 *.frag#version
 *.sln
 *.vcxproj
-*.vcxproj.filter
+*.vcxproj.filters
 *.vcxproj.user
