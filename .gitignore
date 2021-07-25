@@ -389,9 +389,13 @@ FodyWeavers.xsd
 
 # other 
 [Tt][Oo][Dd][Oo]/
+build/assets/shader/
 *.one
-shader/
 *.frag
 *.glsl
 *.zxshad
 *.frag#version
+*.sln
+*.vcxproj
+*.vcxproj.filter
+*.vcxproj.user

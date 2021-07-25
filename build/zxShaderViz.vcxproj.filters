@@ -912,7 +912,7 @@
     <ClInclude Include="include\Window.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="include\sppch.h">
+    <ClInclude Include="include\zxpch.h">
       <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>
@@ -947,7 +947,7 @@
     <ClCompile Include="src\main.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="src\sppch.cpp">
+    <ClCompile Include="src\zxpch.cpp">
       <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>

@@ -1,4 +1,4 @@
-#include "sppch.h"
+#include "zxpch.h"
 
 #ifndef SP_WIN
 #error ShaderPlayground only supports Windows!

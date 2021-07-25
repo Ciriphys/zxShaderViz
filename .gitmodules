@@ -1,12 +1,12 @@
 [submodule "glfw"]
 	path = build/ThirdParty/GLFW
-	url = https://www.github.com/glfw/glfw
+	url = https://www.github.com/Ciridev/glfw
 [submodule "build/ThirdParty/glm"]
 	path = build/ThirdParty/glm
 	url = https://www.github.com/g-truc/glm
 [submodule "build/ThirdParty/ImGui"]
 	path = build/ThirdParty/ImGui
-	url = https://www.github.com/ocornut/imgui
+	url = https://www.github.com/Ciridev/imgui
 [submodule "build/ThirdParty/YAML"]
 	path = build/ThirdParty/YAML
-	url = https://github.com/jbeder/yaml-cpp
+	url = https://github.com/Ciridev/yaml-cpp
