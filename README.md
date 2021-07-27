@@ -1,5 +1,7 @@
 # zxShaderViz
 
+![zxShaderViz Showcase](https://github.com/Ciridev/ShaderPlayground/blob/master/Screenshots/Showcase.png)
+
 ## About
 zxShaderViz is a useful tool made by our team, which aims to help learning about shader development. Currently zxShaderViz is still under development. However, we have released an Alpha Version to let you test the product and give us your precious feedback. Many features are yet to come, but the essential is in there. We will keep updating the software to implement all the ideas we have in mind. 
 
