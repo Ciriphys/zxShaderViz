@@ -1,4 +1,5 @@
 # zxShaderViz
+**Note:** The project has been moved and it is now hosted [here!](https://github.com/ZeXo-Entertainment/zxShaderViz)
 
 ![zxShaderViz Showcase](https://github.com/Ciridev/ShaderPlayground/blob/master/Screenshots/Showcase.png)
 
