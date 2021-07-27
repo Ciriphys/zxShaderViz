@@ -1,21 +1,14 @@
 #pragma once
 
-#include <Events/Event.h>
-#include <string>
+#include "Events/Event.h"
 
 struct GLFWwindow;
 using EventProcedure = std::function<void(Event&)>;
 
-static void glfw_error_callback(int error, const char* description)
+enum class RefreshRate
 {
-	fprintf(stderr, "Glfw Error %d: %s\n", error, description);
-}
-
-enum RefreshRate : unsigned int
-{
-	RefreshRate_Unlimited = 0,
-	RefreshRate_60hz = 1,
-	RefreshRate_30hz = 2
+	Free,
+	VSync
 };
 
 struct WindowSettings
@@ -34,56 +27,56 @@ public:
 	Window
 	(
 		WindowSettings settings,
-		std::string title = "ZeXo Shading"
+		std::string title = "zxShaderViz"
 	) 
 	{
-		mData.mSettings = settings;
-		mData.mTitle = title;
+		m_Data.m_Settings = settings;
+		m_Data.m_Title = title;
 
 		Init(settings);
 	}
 
 	~Window() = default;
 
-	uint32_t	 GetWidth()			const { return mData.mSettings.windowSizex; }
-	uint32_t	 GetHeight()		const { return mData.mSettings.windowSizey; }
+	uint32_t	 GetWidth()			const { return m_Data.m_Settings.windowSizex; }
+	uint32_t	 GetHeight()		const { return m_Data.m_Settings.windowSizey; }
 	
-	uint32_t	 GetPosX()		const { return mData.mSettings.windowPosx; }
-	uint32_t	 GetPosY()		const { return mData.mSettings.windowPosy; }
+	uint32_t	 GetPosX()		const { return m_Data.m_Settings.windowPosx; }
+	uint32_t	 GetPosY()		const { return m_Data.m_Settings.windowPosy; }
 
 
 	uint32_t	 GetCurrPosX();
 	uint32_t	 GetCurrPosY();
 
-	GLFWwindow*  GetNativeWindow()  const { return mWindow; }
-	std::string  GetTitle()			const { return mData.mTitle; }
-	RefreshRate  GetRefreshRate()	const { return mData.mSettings.refreshRate; }
+	GLFWwindow*  GetNativeWindow()  const { return m_Window; }
+	std::string  GetTitle()			const { return m_Data.m_Title; }
+	RefreshRate  GetRefreshRate()	const { return m_Data.m_Settings.refreshRate; }
 
-	bool		 IsVsync()		 const { return mData.mSettings.refreshRate == RefreshRate_60hz; }
-	bool		 IsActive()		 const { return mData.mIsActive; }
+	bool		 IsVsync()		 const { return m_Data.m_Settings.refreshRate == RefreshRate::VSync; }
+	bool		 IsActive()		 const { return m_Data.m_IsActive; }
 
-	void SetRefreshRate(RefreshRate);
-	void SetTitle(std::string);
+	void SetRefreshRate(RefreshRate rrate);
+	void SetTitle(std::string title);
 
-	void SetEventCallbackProcedure(const EventProcedure&);
+	void SetEventCallbackProcedure(const EventProcedure& eventProcedure);
 
 	void Update();
 	void Clear();
 	void Close();
 
 private:
-	void Init(WindowSettings);
+	void Init(WindowSettings settings);
 
-	GLFWwindow* mWindow;
+	GLFWwindow* m_Window;
 	
 	struct WindowData
 	{
-		WindowSettings mSettings;
+		WindowSettings m_Settings = {};
 
-		bool mIsActive = false;
-		std::string mTitle;
-		EventProcedure mProcedure;
+		bool m_IsActive = false;
+		std::string m_Title;
+		EventProcedure m_Procedure;
 	};
 
-	WindowData mData;
+	WindowData m_Data;
 };

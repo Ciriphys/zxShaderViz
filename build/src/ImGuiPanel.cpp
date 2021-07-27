@@ -1,7 +1,7 @@
 #include "zxpch.h"
-#include "ImGuiPanel.h"
 
-#include "Engine.h"
+#include "ImGuiPanel.h"
+#include "Application.h"
 #include "Utils/Input.h"
 #include "Utils/FileDialogs.h"
 
@@ -22,17 +22,21 @@ void ImGuiPanel::Begin()
 void ImGuiPanel::End()
 {
 	ImGuiIO& io = ImGui::GetIO();
-	io.DisplaySize = ImVec2(Engine::GetEngineInstance().GetWindow()->GetWidth(), Engine::GetEngineInstance().GetWindow()->GetHeight());
+	
+	float x = static_cast<float>(Application::Get().GetWindow()->GetWidth());
+	float y = static_cast<float>(Application::Get().GetWindow()->GetHeight());
+
+	io.DisplaySize = ImVec2(x, y);
 
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
 	if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
 	{
-		GLFWwindow* backup_current_context = glfwGetCurrentContext();
+		GLFWwindow* backupCurrentContext = glfwGetCurrentContext();
 		ImGui::UpdatePlatformWindows();
 		ImGui::RenderPlatformWindowsDefault();
-		glfwMakeContextCurrent(backup_current_context);
+		glfwMakeContextCurrent(backupCurrentContext);
 	}
 }
 
@@ -47,18 +51,19 @@ void ImGuiPanel::Init()
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO();
+
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;		
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableSetMousePos;    
 	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 	io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
-	io.Fonts->AddFontFromFileTTF("assets/font/OpenSans/OpenSans-regular.ttf", 18.0f);
+	
+	io.Fonts->AddFontFromFileTTF("assets/font/OpenSans/OpenSans-regular.ttf", 20.0f);
 	io.Fonts->AddFontFromFileTTF("assets/font/OpenSans/OpenSans-regular.ttf", 34.0f);
 	io.Fonts->AddFontFromFileTTF("assets/font/FiraCode/FiraCode-Retina.ttf", 18.0f);
 	io.Fonts->AddFontFromFileTTF("assets/font/Lato/Lato-Regular.ttf", 18.0f);
 
-	ImGui::StyleColorsDark();
-
-	ChangeTheme(Engine::GetEngineInstance().GetSettings()->theme);
+	auto& application = Application::Get();
+	ChangeTheme(application.GetSettings()->theme);
 
 	ImGuiStyle& style = ImGui::GetStyle();
 	if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
@@ -67,11 +72,7 @@ void ImGuiPanel::Init()
 		style.Colors[ImGuiCol_WindowBg].w = 1.0f;
 	}
 
-	auto& app = Engine::GetEngineInstance();
-	GLFWwindow* window = static_cast<GLFWwindow*>(app.GetWindow()->GetNativeWindow());
-
-	// Setup Platform/Renderer bindings
-	ImGui_ImplGlfw_InitForOpenGL(window, true);
+	ImGui_ImplGlfw_InitForOpenGL(application.GetWindow()->GetNativeWindow(), true);
 	ImGui_ImplOpenGL3_Init("#version 460");
 }
 
@@ -86,7 +87,6 @@ void ImGuiPanel::ChangeTheme(int theme)
 {
 	switch (theme)
 	{
-	// dark
 	case 0:
 		{
 			ImGui::StyleColorsDark();
@@ -114,12 +114,38 @@ void ImGuiPanel::ChangeTheme(int theme)
 			colors[ImGuiCol_Tab] = ImVec4(0.25f, 0.25f, 0.25f, 0.86f);
 			colors[ImGuiCol_TabHovered] = ImVec4(0.21f, 0.21f, 0.21f, 0.80f);
 			colors[ImGuiCol_TabActive] = ImVec4(0.57f, 0.57f, 0.57f, 1.00f);
+			colors[ImGuiCol_TabUnfocusedActive] = ImVec4(0.40f, 0.41f, 0.41f, 0.29f);
+			colors[ImGuiCol_DockingPreview] = ImVec4(0.51f, 0.51f, 0.51f, 0.70f);
+			colors[ImGuiCol_TextSelectedBg] = ImVec4(1.00f, 0.60f, 0.00f, 1.00f);
 		}
 		break;
 	
-	// light
 	case 1:
 		ImGui::StyleColorsLight();
+		ImVec4* colors = ImGui::GetStyle().Colors;
+		colors[ImGuiCol_Text] = ImVec4(0.00f, 0.00f, 0.00f, 0.77f);
+		colors[ImGuiCol_WindowBg] = ImVec4(0.87f, 0.87f, 0.87f, 1.00f);
+		colors[ImGuiCol_Border] = ImVec4(0.85f, 0.57f, 0.32f, 0.30f);
+		colors[ImGuiCol_BorderShadow] = ImVec4(0.00f, 0.00f, 0.00f, 0.06f);
+		colors[ImGuiCol_FrameBg] = ImVec4(0.89f, 0.89f, 0.89f, 1.00f);
+		colors[ImGuiCol_FrameBgHovered] = ImVec4(0.68f, 0.68f, 0.68f, 0.40f);
+		colors[ImGuiCol_FrameBgActive] = ImVec4(0.68f, 0.68f, 0.68f, 0.67f);
+		colors[ImGuiCol_ScrollbarGrab] = ImVec4(1.00f, 0.69f, 0.23f, 0.85f);
+		colors[ImGuiCol_ScrollbarGrabHovered] = ImVec4(1.00f, 0.82f, 0.21f, 0.80f);
+		colors[ImGuiCol_ScrollbarGrabActive] = ImVec4(1.00f, 0.54f, 0.26f, 1.00f);
+		colors[ImGuiCol_CheckMark] = ImVec4(0.89f, 0.65f, 0.35f, 1.00f);
+		colors[ImGuiCol_SliderGrab] = ImVec4(1.00f, 0.63f, 0.22f, 0.78f);
+		colors[ImGuiCol_Button] = ImVec4(1.00f, 1.00f, 1.00f, 0.40f);
+		colors[ImGuiCol_ButtonHovered] = ImVec4(1.00f, 0.79f, 0.40f, 1.00f);
+		colors[ImGuiCol_ButtonActive] = ImVec4(1.00f, 0.64f, 0.15f, 0.90f);
+		colors[ImGuiCol_Header] = ImVec4(1.00f, 0.75f, 0.33f, 0.31f);
+		colors[ImGuiCol_HeaderHovered] = ImVec4(1.00f, 0.87f, 0.34f, 0.80f);
+		colors[ImGuiCol_Tab] = ImVec4(0.70f, 0.70f, 0.70f, 0.93f);
+		colors[ImGuiCol_TabHovered] = ImVec4(0.77f, 0.77f, 0.77f, 0.85f);
+		colors[ImGuiCol_TabActive] = ImVec4(0.61f, 0.61f, 0.61f, 1.00f);
+		colors[ImGuiCol_TabUnfocused] = ImVec4(0.52f, 0.52f, 0.52f, 0.99f);
+		colors[ImGuiCol_TabUnfocusedActive] = ImVec4(0.87f, 0.87f, 0.87f, 1.00f);
+		colors[ImGuiCol_DockingPreview] = ImVec4(0.97f, 0.40f, 0.14f, 0.78f);
 		break;
 	}
 }

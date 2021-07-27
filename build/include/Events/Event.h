@@ -16,9 +16,6 @@ enum class EventType
 	WindowMoved,
 	WindowClosed,
 
-	AppTick,
-	AppRender,
-
 	FilesDropped
 };
 

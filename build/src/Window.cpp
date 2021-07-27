@@ -1,25 +1,25 @@
 #include "zxpch.h"
 
+#include "Events/KeyEvents.h"
+#include "Events/MouseEvents.h"
+#include "Events/WindowEvents.h"
+
+#include "Window.h"
+
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-#include <Events/KeyEvents.h>
-#include <Events/MouseEvents.h>
-#include <Events/WindowEvents.h>
-
-#include <Window.h>
-
 static bool s_glfwInit = false;
-static uint32_t s_KeyRepeats = 0;
+static unsigned int s_KeyRepeats = 0;
 
 void Window::SetEventCallbackProcedure(const EventProcedure& eventProcedure)
 {
-	mData.mProcedure = eventProcedure;
+	m_Data.m_Procedure = eventProcedure;
 }
 
 void Window::Update()
 {
-	glfwSwapBuffers(mWindow);
+	glfwSwapBuffers(m_Window);
 	glfwPollEvents();
 }
 
@@ -33,62 +33,61 @@ void Window::Close()
 {
 	glfwTerminate();
 	s_glfwInit = false;
-	mData.mIsActive = false;
+	m_Data.m_IsActive = false;
 }
 
-uint32_t Window::GetCurrPosX()
+unsigned int Window::GetCurrPosX()
 {
-	glfwGetWindowPos(mWindow, &mData.mSettings.windowPosx, nullptr);
-	return uint32_t(mData.mSettings.windowPosx);
+	glfwGetWindowPos(m_Window, &m_Data.m_Settings.windowPosx, nullptr);
+	return static_cast<unsigned int>(m_Data.m_Settings.windowPosx);
 }
 
 uint32_t Window::GetCurrPosY()
 {
-	glfwGetWindowPos(mWindow, nullptr, &mData.mSettings.windowPosy);
-	return uint32_t(mData.mSettings.windowPosy);
+	glfwGetWindowPos(m_Window, nullptr, &m_Data.m_Settings.windowPosy);
+	return static_cast<unsigned int>(m_Data.m_Settings.windowPosy);
 }
 
 void Window::SetRefreshRate(RefreshRate rrate)
 {
-	mData.mSettings.refreshRate = rrate;
-	glfwSwapInterval(mData.mSettings.refreshRate);
+	m_Data.m_Settings.refreshRate = rrate;
+	glfwSwapInterval(static_cast<int>(m_Data.m_Settings.refreshRate));
 }
 
 void Window::SetTitle(std::string title)
 {
-	mData.mTitle = title;
-	glfwSetWindowTitle(mWindow, mData.mTitle.c_str());
+	m_Data.m_Title = title;
+	glfwSetWindowTitle(m_Window, m_Data.m_Title.c_str());
 }
 
 void Window::Init(WindowSettings settings)
 {
 	if (!s_glfwInit)
 	{
-		glfwSetErrorCallback(glfw_error_callback);
 		if (!glfwInit())
 		{
 			std::cerr << "Couldn't initialize GLFW!" << std::endl;
-			// Error Handling
+			return;
 		}
 
 		s_glfwInit = true;
 	}
 
-	mWindow = glfwCreateWindow(mData.mSettings.windowSizex, mData.mSettings.windowSizey, mData.mTitle.c_str(), nullptr, nullptr);
-	glfwMakeContextCurrent(mWindow);
+	m_Window = glfwCreateWindow(m_Data.m_Settings.windowSizex, m_Data.m_Settings.windowSizey, m_Data.m_Title.c_str(), nullptr, nullptr);
+	glfwMakeContextCurrent(m_Window);
 
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 	{
 		std::cerr << "Couldn't initialize Glad!" << std::endl;
-		// Error Handling
+		return;
 	}
 
-	glfwSetWindowPos(mWindow, settings.windowPosx, settings.windowPosy);
-	glfwSetWindowUserPointer(mWindow, reinterpret_cast<void*>(&mData));
-	glViewport(0, 0, mData.mSettings.windowSizex, mData.mSettings.windowSizey);
+	glfwSetWindowPos(m_Window, settings.windowPosx, settings.windowPosy);
+	glfwSetWindowUserPointer(m_Window, reinterpret_cast<void*>(&m_Data));
+	glViewport(0, 0, m_Data.m_Settings.windowSizex, m_Data.m_Settings.windowSizey);
 
 	// Setup Event Handling
-	glfwSetKeyCallback(mWindow, [](GLFWwindow* wnd, int key, int scancode, int action, int mods)
+	glfwSetKeyCallback(m_Window, [](GLFWwindow* wnd, int key, int scancode, int action, int mods)
 		{
 			WindowData& data = *(WindowData*)glfwGetWindowUserPointer(wnd);
 
@@ -97,56 +96,56 @@ void Window::Init(WindowSettings settings)
 				case GLFW_PRESS:
 				{
 					KeyPressed e(key, s_KeyRepeats);
-					data.mProcedure(e);
+					data.m_Procedure(e);
 					break;
 				}
 				case GLFW_RELEASE:
 				{
 					s_KeyRepeats = 0;
 					KeyReleased e(key);
-					data.mProcedure(e);
+					data.m_Procedure(e);
 					break;
 				}
 				case GLFW_REPEAT:
 				{
 					s_KeyRepeats++;
 					KeyPressed e(key, s_KeyRepeats);
-					data.mProcedure(e);
+					data.m_Procedure(e);
 					break;
 				}
 			}
 		});
 
-	glfwSetWindowSizeCallback(mWindow, [](GLFWwindow* wnd, int width, int height)
+	glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* wnd, int width, int height)
 		{
 			WindowData& data = *reinterpret_cast<WindowData*>(glfwGetWindowUserPointer(wnd));
-			data.mSettings.windowSizex = width;
-			data.mSettings.windowSizey = height;
+			data.m_Settings.windowSizex = width;
+			data.m_Settings.windowSizey = height;
 
 			WindowResized e(width, height);
-			data.mProcedure(e);
+			data.m_Procedure(e);
 		});
 
-	glfwSetWindowPosCallback(mWindow, [](GLFWwindow* wnd, int posx, int posy) 
+	glfwSetWindowPosCallback(m_Window, [](GLFWwindow* wnd, int posx, int posy) 
 	{
 			WindowData& data = *reinterpret_cast<WindowData*>(glfwGetWindowUserPointer(wnd));
-			data.mSettings.windowPosx = posx;
-			data.mSettings.windowPosy = posy;
+			data.m_Settings.windowPosx = posx;
+			data.m_Settings.windowPosy = posy;
 
 			WindowMoved e(posx, posy);
-			data.mProcedure(e);
+			data.m_Procedure(e);
 	});
 	
 
-	glfwSetWindowCloseCallback(mWindow, [](GLFWwindow* wnd)
+	glfwSetWindowCloseCallback(m_Window, [](GLFWwindow* wnd)
 		{
 			WindowData& data = *reinterpret_cast<WindowData*>(glfwGetWindowUserPointer(wnd));
 
 			WindowClosed e;
-			data.mProcedure(e);
+			data.m_Procedure(e);
 		});
 
-	glfwSetMouseButtonCallback(mWindow, [](GLFWwindow* wnd, int button, int action, int mods)
+	glfwSetMouseButtonCallback(m_Window, [](GLFWwindow* wnd, int button, int action, int mods)
 		{
 			WindowData& data = *reinterpret_cast<WindowData*>(glfwGetWindowUserPointer(wnd));
 
@@ -155,44 +154,44 @@ void Window::Init(WindowSettings settings)
 				case GLFW_PRESS:
 				{
 					MouseButtonPressed e(button);
-					data.mProcedure(e);
+					data.m_Procedure(e);
 					break;
 				}
 				case GLFW_RELEASE:
 				{
 					MouseButtonReleased e(button);
-					data.mProcedure(e);
+					data.m_Procedure(e);
 					break;
 				}
 			}
 		});
 
-	glfwSetScrollCallback(mWindow, [](GLFWwindow* wnd, double xoffset, double yoffset)
+	glfwSetScrollCallback(m_Window, [](GLFWwindow* wnd, double xoffset, double yoffset)
 		{
 			WindowData& data = *reinterpret_cast<WindowData*>(glfwGetWindowUserPointer(wnd));
 
 			MouseWheelScrolled e(xoffset, yoffset);
-			data.mProcedure(e);
+			data.m_Procedure(e);
 		});
 
-	glfwSetCursorPosCallback(mWindow, [](GLFWwindow* wnd, double xPos, double yPos)
+	glfwSetCursorPosCallback(m_Window, [](GLFWwindow* wnd, double xPos, double yPos)
 		{
 			WindowData& data = *reinterpret_cast<WindowData*>(glfwGetWindowUserPointer(wnd));
 
 			MouseMoved e(xPos, yPos);
-			data.mProcedure(e);
+			data.m_Procedure(e);
 		});
 
-	glfwSetFramebufferSizeCallback(mWindow, [](GLFWwindow* wnd, int width, int height) {
+	glfwSetFramebufferSizeCallback(m_Window, [](GLFWwindow* wnd, int width, int height) {
 			glViewport(0, 0, width, height);
 	});
 
-	glfwSetDropCallback(mWindow, [](GLFWwindow* wnd, int num, const char* files[]) {
+	glfwSetDropCallback(m_Window, [](GLFWwindow* wnd, int num, const char* files[]) {
 		WindowData& data = *reinterpret_cast<WindowData*>(glfwGetWindowUserPointer(wnd));
 
 		FilesDropped e(num, files);
-		data.mProcedure(e);
+		data.m_Procedure(e);
 	});
 
-	mData.mIsActive = true;
+	m_Data.m_IsActive = true;
 }

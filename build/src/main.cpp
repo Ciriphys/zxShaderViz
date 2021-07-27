@@ -1,25 +1,24 @@
 #include "zxpch.h"
 
-#ifndef SP_WIN
-#error ShaderPlayground only supports Windows!
+#ifndef ZX_WIN
+	#error zxShaderViz only supports Windows!
 #else
 
-#include <Engine.h>
+#include "Application.h"
 
 int main()
 {
-	auto& engine = Engine::GetEngineInstance();
+	auto& engine = Application::Get();
 	engine.RenderLoop();
 
 	return 0;
 }
 
-	#if defined(SP_DIST) || defined(SP_RELEASE)
-
-int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow)
+#ifdef ZX_RELEASE
+int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR pCmdLine, _In_ int nCmdShow)
 {
-	main();
+	return main();
 }
+#endif
 
-	#endif
 #endif

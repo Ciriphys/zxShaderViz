@@ -1,7 +1,7 @@
 #pragma once
 
-#include <Utils/Shader.h>
-#include <FrameBuffer.h>
+#include "Utils/Shader.h"
+#include "FrameBuffer.h"
 
 class Renderer
 {
@@ -15,16 +15,14 @@ public:
 	
 	std::shared_ptr<Shader> LoadShaderFromFile(const std::string& glslpath, bool recache = false);
 
-	unsigned int GetFrameBufferColorAttachment() const { return mColorAttachment; }
+	const std::shared_ptr<FrameBuffer>& GetFrameBuffer() const { return m_FrameBuffer; }
+	const std::shared_ptr<Shader>& GetShader() const { return m_ActiveShader; }
 
-	const std::shared_ptr<FrameBuffer>& GetFrameBuffer() const { return mFrameBuffer; }
-	const std::shared_ptr<Shader>& GetShader() const { return mActiveShader; }
+	void SetShader(const std::shared_ptr<Shader>& shader) { m_ActiveShader = shader; }
 
-	void SetShader(const std::shared_ptr<Shader>& shader) { mActiveShader = shader; }
+	void DeleteShaderCache() { m_ShaderCache.clear(); m_ActiveShader = nullptr; m_FrameBuffer->DeleteColorAttachment(); m_FrameBuffer->Invalidate(); }
 
-	void DeleteShaderCache() { mShaderCache.clear(); mActiveShader = nullptr; mFrameBuffer->DeleteColorAttachment(); mFrameBuffer->Invalidate(); }
-
-	std::unordered_map<std::string, std::shared_ptr<Shader>> GetRawShaderCache() const { return mShaderCache; }
+	std::unordered_map<std::string, std::shared_ptr<Shader>> GetRawShaderCache() const { return m_ShaderCache; }
 
 private: 
 
@@ -32,17 +30,13 @@ private:
 
 	static std::shared_ptr<Renderer> s_Instance;
 
-	uint32_t mVao_id;
-	uint32_t mVbo_id;
-	uint32_t mIbo_id;
+	unsigned int m_Vao_id;
+	unsigned int m_Vbo_id;
+	unsigned int m_Ibo_id;
 
-	std::unordered_map<std::string, std::shared_ptr<Shader>> mShaderCache;
-	std::shared_ptr<Shader> mActiveShader;
-	std::shared_ptr<FrameBuffer> mFrameBuffer;
+	std::unordered_map<std::string, std::shared_ptr<Shader>> m_ShaderCache;
+	std::shared_ptr<Shader> m_ActiveShader;
+	std::shared_ptr<FrameBuffer> m_FrameBuffer;
 	
-	unsigned int mFrameBufferId = 0;
-	unsigned int mColorAttachment = 0;
-	unsigned int mWidth = 0, mHeight = 0;
-
-	friend class Engine;
+	friend class Application;
 };

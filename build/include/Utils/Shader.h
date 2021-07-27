@@ -2,11 +2,6 @@
 
 #include <glm/glm.hpp>
 
-// Supported Shader Types Count
-static const unsigned int s_ShaderTypesCount = 2;
-
-static const char* s_VertexShaderDefault = "";
-
 enum class ShaderType : int
 {
 	Vertex = 0,
@@ -68,11 +63,11 @@ public:
 	void Enable() const;
 	void Disable() const;
 
-	bool IsLinked() const { return mStatus == ShaderStatus::Linked; }
-	ShaderStatus GetStatus() const { return mStatus; }
+	bool IsLinked() const { return m_Status == ShaderStatus::Linked; }
+	ShaderStatus GetStatus() const { return m_Status; }
 
-	std::string GetFilepath() const { return mPath; }
-	std::string GetFragmentSource() const { return mSource; }
+	std::string GetFilepath() const { return m_Path; }
+	std::string GetFragmentSource() const { return m_Source; }
 
 private:
 	bool CreateShader();
@@ -80,11 +75,11 @@ private:
 
 	bool ParseFragmentShader(const std::string& filepath);
 
-	std::string mPath;
-	std::string mSource;
+	std::string m_Path;
+	std::string m_Source;
 
-	unsigned int mProgram;
+	unsigned int m_Program;
 
-	ShaderFileType mType;
-	ShaderStatus mStatus;
+	ShaderFileType m_Type;
+	ShaderStatus m_Status;
 };

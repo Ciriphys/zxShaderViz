@@ -1,7 +1,7 @@
 #include "zxpch.h"
 
 #include "Utils/FileDialogs.h"
-#include "Engine.h"
+#include "Application.h"
 
 #define GLFW_EXPOSE_NATIVE_WIN32
 #include <GLFW/glfw3.h>
@@ -18,7 +18,7 @@ namespace FileDialogs
 		ZeroMemory(&ofn, sizeof(OPENFILENAME));
 		ofn.lStructSize = sizeof(OPENFILENAME);
 
-		ofn.hwndOwner = glfwGetWin32Window((GLFWwindow*)Engine::GetEngineInstance().GetWindow()->GetNativeWindow());
+		ofn.hwndOwner = glfwGetWin32Window((GLFWwindow*)Application::Get().GetWindow()->GetNativeWindow());
 		ofn.lpstrFile = szFile;
 		ofn.nMaxFile = sizeof(szFile);
 
@@ -32,7 +32,6 @@ namespace FileDialogs
 			return ofn.lpstrFile;
 
 		return std::string();
-
 	}
 	
 	std::string SaveFileAs(const char* filter)
@@ -44,7 +43,7 @@ namespace FileDialogs
 		ZeroMemory(&ofn, sizeof(OPENFILENAME));
 		ofn.lStructSize = sizeof(OPENFILENAME);
 
-		ofn.hwndOwner = glfwGetWin32Window((GLFWwindow*)Engine::GetEngineInstance().GetWindow()->GetNativeWindow());
+		ofn.hwndOwner = glfwGetWin32Window((GLFWwindow*)Application::Get().GetWindow()->GetNativeWindow());
 		ofn.lpstrFile = szFile;
 		ofn.nMaxFile = sizeof(szFile);
 

@@ -8,20 +8,21 @@ public:
 	FrameBuffer();
 	~FrameBuffer();
 
-	void Resize(uint32_t width, uint32_t height);
+	void Resize(unsigned int width, unsigned int height);
 
-	void Enable() const { glBindFramebuffer(GL_FRAMEBUFFER, mFrameBufferId); 	glViewport(0, 0, mWidth, mHeight);}
+	void Enable() const { glBindFramebuffer(GL_FRAMEBUFFER, m_FrameBufferId); 	glViewport(0, 0, m_Width, m_Height);}
 	void Disable() const { glBindFramebuffer(GL_FRAMEBUFFER, 0); }
 
-	void DeleteColorAttachment() { glDeleteTextures(1, &mColorAttachmentId); }
+	unsigned int GetColorAttachment() const { return m_ColorAttachmentId; }
+	
+	void DeleteColorAttachment() { glDeleteTextures(1, reinterpret_cast<unsigned int*>(&m_ColorAttachmentId)); }
 
-	uint32_t GetColorAttachment() const { return mColorAttachmentId; }
 	void Invalidate();
 
 private:
-	uint32_t mFrameBufferId = 0;
-	uint32_t mColorAttachmentId = 0;
-	uint32_t mWidth = 0, mHeight = 0;
+	unsigned int m_FrameBufferId = 0;
+	unsigned int m_ColorAttachmentId = 0;
+	unsigned int m_Width = 0, m_Height = 0;
 
 	friend class Renderer;
 };

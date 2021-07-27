@@ -1,6 +1,6 @@
 workspace "zxShaderViz"
   architecture "x64"
-  configurations { "Debug", "Release", "Distribution" }
+  configurations { "Debug", "Release" }
   startproject "zxShaderViz"
 
   outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
@@ -55,19 +55,14 @@ workspace "zxShaderViz"
       systemversion "latest"
       system "windows"
 
-      defines { "SP_WIN" }
+      defines { "ZX_WIN" }
 
     filter { "configurations:Debug" }
-      defines { "SP_DEBUG", "DEBUG" }
+      defines { "DEBUG" }
       symbols "On"
       kind "ConsoleApp"
 
     filter { "configurations:Release" }
-      defines { "SP_RELEASE", "NDEBUG" }
-      optimize "On"
-      kind "WindowedApp"
-
-    filter { "configurations:Distribution" }
-      defines { "SP_DIST", "SP_HIDE_LOGS" }
+      defines { "ZX_RELEASE", "NDEBUG" }
       optimize "On"
       kind "WindowedApp"

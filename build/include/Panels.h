@@ -11,25 +11,30 @@ public:
 	virtual void DrawUI() = 0;
 	virtual void OnEvent(Event& e) = 0;
 
-	std::string GetName() const { return mName; }
+	std::string GetName() const { return m_Name; }
 
-	bool IsActive() const { return mActive; }
-	void Activate(bool state) { mActive = state; }
+	bool IsActive() const { return m_Active; }
+	void Activate(bool state) { m_Active = state; }
 
 protected:
-	UIPanel(const std::string& name, bool active = true) : mName(name), mActive(active) 
-	{ windowFlags = ImGuiWindowFlags_NoCollapse; }
+	UIPanel(const std::string& name, bool active = true) : m_Name(name), m_Active(active) 
+	{ m_WindowFlags = ImGuiWindowFlags_NoCollapse; }
 
-	std::string mName;
-	bool mActive;
+	std::string m_Name;
+	bool m_Active;
 
-	ImGuiWindowFlags windowFlags;
+	ImGuiWindowFlags m_WindowFlags;
 };
 
 class MenuBarPanel : public UIPanel
 {
 public:
-	MenuBarPanel(const std::string& name) : UIPanel(name) {}
+	MenuBarPanel(const std::string& name) : UIPanel(name)
+	{
+		m_WindowFlags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
+		m_WindowFlags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
+		m_WindowFlags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
+	}
 
 	virtual void DrawUI() override;
 	virtual void OnEvent(Event& e);
@@ -43,38 +48,38 @@ public:
 	virtual void DrawUI() override;
 	virtual void OnEvent(Event& e) {}
 
-	void SetFrameBuffer(std::shared_ptr<FrameBuffer> fb) { mFrameBuffer = fb; }
-	glm::vec2 GetMousePos() const { return mMousePos; }
-	glm::vec2 GetViewportSize() const { return mViewportSize; }
+	void SetFrameBuffer(std::shared_ptr<FrameBuffer> fb) { m_FrameBuffer = fb; }
+	glm::vec2 GetMousePos() const { return m_MousePos; }
+	glm::vec2 GetViewportSize() const { return m_ViewportSize; }
 
 private:
-	glm::vec2 mViewportSize = { 0, 0 };
-	glm::vec2 mMousePos = { 0,  0 };
-	std::shared_ptr<FrameBuffer> mFrameBuffer;
+	glm::vec2 m_ViewportSize = { 0, 0 };
+	glm::vec2 m_MousePos = { 0,  0 };
+	std::shared_ptr<FrameBuffer> m_FrameBuffer;
 };
 
 class ShaderEditorPanel : public UIPanel
 {
 public:
-	ShaderEditorPanel(const std::string& name) : UIPanel(name), mSaved(true), mFilename("") {}
+	ShaderEditorPanel(const std::string& name) : UIPanel(name), m_Saved(true), m_Filename("") {}
 	
 	virtual void DrawUI() override;
 	virtual void OnEvent(Event& e) {}
 
-	void Save(bool save = true) { mSaved = save; }
-	bool IsSaved() const { return mSaved; }
+	void Save(bool save = true) { m_Saved = save; }
+	bool IsSaved() const { return m_Saved; }
 
-	void SetFragSource(std::string src) { mFragmentSrc = src; }
-	std::string GetFragSource() const { return mFragmentSrc; }
+	void SetFragSource(std::string src) { m_FragmentSrc = src; }
+	std::string GetFragSource() const { return m_FragmentSrc; }
 
-	void SetFilename(std::string filename) { mFilename = filename; }
-	std::string GetFilename() const { return mFilename; }
+	void SetFilename(std::string filename) { m_Filename = filename; }
+	std::string GetFilename() const { return m_Filename; }
 
 private:
-	bool mSaved;
+	bool m_Saved;
 
-	std::string mFragmentSrc;
-	std::string mFilename;
+	std::string m_FragmentSrc;
+	std::string m_Filename;
 };
 
 
@@ -87,14 +92,14 @@ public:
 	virtual void OnEvent(Event& e) {}
 };
 
-enum Severity
+enum class Severity
 {
-	Trace = 0,
-	Info = 1,
-	Success = 2,
-	Warn = 3,
-	Error = 4,
-	Fatal = 5
+	Trace,
+	Info,
+	Success,
+	Warn,
+	Error,
+	Fatal
 };
 
 static ImVec4 GetColorFromSeverity(Severity severity);
@@ -102,8 +107,8 @@ static ImVec4 GetColorFromSeverity(Severity severity);
 class LogPanel : public UIPanel
 {
 public: 
-	LogPanel(const std::string& name) : UIPanel(name), mLogMsgs({}) 
-	{ windowFlags |= ImGuiWindowFlags_AlwaysAutoResize; }
+	LogPanel(const std::string& name) : UIPanel(name), m_LogMsgs({}) 
+	{ m_WindowFlags |= ImGuiWindowFlags_AlwaysAutoResize; }
 
 	virtual void DrawUI() override;
 	virtual void OnEvent(Event& e) {}
@@ -111,13 +116,16 @@ public:
 	void PushMessage(Severity severity, const std::string& msg);
 
 private:
-	std::vector<std::pair<std::string, Severity>> mLogMsgs;
+	std::vector<std::pair<std::string, Severity>> m_LogMsgs;
 };
 
 class EditorPreferencesPanel : public UIPanel
 {
 public:
-	EditorPreferencesPanel(const std::string& name);
+	EditorPreferencesPanel(const std::string& name) : UIPanel(name, false)
+	{
+		m_WindowFlags |= ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoDocking;
+	}
 	
 	virtual void DrawUI() override;
 	virtual void OnEvent(Event& e) {}
@@ -128,16 +136,16 @@ class UpdateChangesPanel : public UIPanel
 public:
 	UpdateChangesPanel(const std::string& name) : UIPanel(name, false)
 	{
-		windowFlags |= ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoDocking;
+		m_WindowFlags |= ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoDocking;
 	}
 
 	virtual void DrawUI() override;
 	virtual void OnEvent(Event& e) {}
 	
-	void Activate(bool state, int action) { mActive = state; mAction = action; }
+	void Activate(bool state, int action) { m_Active = state; m_Action = action; }
 
 private:
-	int mAction = 0;
+	int m_Action = 0;
 };
 
 class RestoreFilePanel : public UIPanel
@@ -145,15 +153,27 @@ class RestoreFilePanel : public UIPanel
 public:
 	RestoreFilePanel(const std::string& name) : UIPanel(name, true)
 	{
-		windowFlags |= ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoDocking;
+		m_WindowFlags |= ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoDocking;
 	}
 
 	virtual void DrawUI() override;
 	virtual void OnEvent(Event& e) {}
 
-	void Activate(bool state, int action) { mActive = state; mAction = action; }
+	void Activate(bool state, int action) { m_Active = state; m_Action = action; }
 
 private:
-	int mAction = 0;
+	int m_Action = 0;
 };
 
+class AboutPanel : public UIPanel
+{
+public: 
+	AboutPanel(const std::string& name) : UIPanel(name, false)
+	{
+		m_WindowFlags |= ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoDocking;
+	}
+
+	virtual void DrawUI() override;
+	virtual void OnEvent(Event& e) {}
+
+};

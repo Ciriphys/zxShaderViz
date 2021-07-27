@@ -1,2 +1,0 @@
-Vertex Shader: "#version 460 core\n\nlayout(location = 0) in vec2 aPos;\n\nvoid main() \n{\n\tgl_Position = vec4(aPos, 0.0f, 1.0f);\n}"
-Fragment Shader: "#version 460 core\n\nout vec4 oColor;\n\nvec4 invertColor(vec3 inVec)\n{\n\treturn vec4(1.0f - inVec, 1.0f);\n}\n\nvec4 invertColor(vec4 inVec)\n{\n\treturn invertColor(inVec.xyz);\n}\n\nvoid main() \n{\n\toColor = invertColor(vec3(0.3, 0.4f, 0.3f));\n}"
